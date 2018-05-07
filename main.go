@@ -29,7 +29,7 @@ var maxe int
 var download bool
 
 func downloadFile(URL string, filename string) error {
-	fmt.Printf("### download(%s, %s)\n",URL,filename)
+	fmt.Printf("### download(%s, %s)\n", URL, filename)
 	if _, err := os.Stat(filename); err == nil {
 		// path/to/whatever exists
 		fmt.Println("### EXISTS: " + filename + " already exists. skipping")
@@ -69,6 +69,26 @@ func downloadFile(URL string, filename string) error {
 	return nil
 }
 
+func tmdbURLfile(filename string, mID int) error {
+	if _, err := os.Stat(filename); err == nil {
+		// path/to/whatever exists
+		fmt.Println("### EXISTS: " + filename + " already exists. skipping")
+	} else {
+		file, err := os.Create(filename) // Truncates if file already exists, be careful!
+		if err != nil {
+			log.Fatalf("failed creating file: %s", err)
+		}
+		defer file.Close()
+
+		_, err = file.WriteString(fmt.Sprintf("[InternetShortcut]\r\nURL=https://www.themoviedb.org/movie/%d\r\n", mID))
+
+		if err != nil {
+			log.Fatalf("failed writing to file: %s", err)
+		}
+	}
+	return nil
+}
+
 func tmdbMovie(name string) (*tmdb.Movie, error) {
 	// Replace any .'s in the title with spaces
 	name = strings.Replace(name, ".", " ", -1)
@@ -80,11 +100,14 @@ func tmdbMovie(name string) (*tmdb.Movie, error) {
 
 	mID := 0
 
+	mIDs := make(map[int]int)
+
 	for _, element := range lookup.Results {
 		if mID == 0 {
 			// keep first
 			mID = element.ID
 		}
+		mIDs[mID] =+ 1
 		fmt.Printf("---------- ID: %d\n", element.ID)
 		fmt.Printf("OriginalTitle: %s\n", element.OriginalTitle)
 		fmt.Printf("        Title: %s\n", element.Title)
@@ -94,8 +117,8 @@ func tmdbMovie(name string) (*tmdb.Movie, error) {
 		fmt.Printf("\nResults = %#v\n\n", element)
 
 		if download {
-            filename := fmt.Sprintf("mi-%s-%d-poster.jpg",element.ReleaseDate,mID)
-			downloadFile("https://image.tmdb.org/t/p/original"+element.PosterPath, filename)
+			filename := fmt.Sprintf("%s-%s-%d", name, element.ReleaseDate, mID)
+			downloadFile("https://image.tmdb.org/t/p/original"+element.PosterPath, filename+"-poster.jpg")
 		}
 		maxe -= 1
 		if maxe == 0 {
@@ -107,6 +130,10 @@ func tmdbMovie(name string) (*tmdb.Movie, error) {
 		res, _ := db.GetMovieImages(mID, nil)
 		fmt.Printf("Images: %#v\n", res)
 		return db.GetMovieInfo(mID, nil)
+	}
+
+	for mIDk, _ := range mIDs {
+     tmdbURLfile(fmt.Sprintf("%s-%d.URL", name, mIDk),mIDk)
 	}
 
 	// Nothing found on TMdb
