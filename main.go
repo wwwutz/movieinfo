@@ -11,9 +11,9 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 type MovieResult struct {
@@ -145,22 +145,25 @@ func tmdbMovie(name string, year int) (*tmdb.Movie, error) {
 	return nil, errors.New("no TMdb match found when looking up movie")
 }
 
-func cleanupname( name string ) (string, int) {
+func cleanupname(name string) (string, int) {
 	// " - 2015"  ==> year
-//  getyear := regexp.MustCompile(`\s-\s([12]\d\d\d)`)
-//	year,_ := strconv.Atoi(getyear.FindString(name))
-	getyear := regexp.MustCompile(`(.*?)\s-\s([12]\d\d\d)(.*)`)
+	//  getyear := regexp.MustCompile(`\s-\s([12]\d\d\d)`)
+	//	year,_ := strconv.Atoi(getyear.FindString(name))
 	clname := name
 	year := 0
-	nameyear :=  getyear.FindStringSubmatch(name)
+	nameyear := regexp.MustCompile(`(.*?)\s-\s([12]\d\d\d)(.*)`).FindStringSubmatch(name)
 	fmt.Printf("\nnameyear = %#v\n", nameyear)
 
-	if (len(nameyear) > 0 ) {
+	if len(nameyear) > 0 {
 		clname = nameyear[1]
-	  year,_ = strconv.Atoi(nameyear[2])
-  }
-	clname = strings.Replace(clname, ".", " ", -1)
-	clname = strings.Replace(clname, "_", " ", -1)
+		year, _ = strconv.Atoi(nameyear[2])
+	}
+//	re = regexp.MustCompile(`[_.\-]`)
+//	clname = re.ReplaceAllString(clname, ``)
+
+	clname = regexp.MustCompile(`[_.\-]`).ReplaceAllString(clname, ` `)
+	// trim everywhere
+	clname = strings.Join(strings.Fields(clname), " ")
 	return clname, year
 }
 
@@ -221,8 +224,8 @@ func main() {
 	app.Action = func(c *cli.Context) error {
 		args := c.Args().Get(0)
 		forceyear := c.Int("year")
-    title,year := cleanupname(args);
-		if ( forceyear > 0 ) {
+		title, year := cleanupname(args)
+		if forceyear > 0 {
 			year = forceyear
 		}
 
