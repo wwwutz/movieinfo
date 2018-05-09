@@ -131,8 +131,10 @@ func tmdbMovie(name string, year int) (*tmdb.Movie, error) {
 		}
 	}
 
-	for mIDk, _ := range mIDs {
-		tmdbURLfile(fmt.Sprintf("%s-%d.URL", name, mIDk), mIDk)
+	if download {
+		for mIDk, _ := range mIDs {
+			tmdbURLfile(fmt.Sprintf("%s-%d.URL", name, mIDk), mIDk)
+		}
 	}
 
 	if mID != 0 {
@@ -158,8 +160,8 @@ func cleanupname(name string) (string, int) {
 		clname = nameyear[1]
 		year, _ = strconv.Atoi(nameyear[2])
 	}
-//	re = regexp.MustCompile(`[_.\-]`)
-//	clname = re.ReplaceAllString(clname, ``)
+	//	re = regexp.MustCompile(`[_.\-]`)
+	//	clname = re.ReplaceAllString(clname, ``)
 
 	clname = regexp.MustCompile(`[_.\-]`).ReplaceAllString(clname, ` `)
 	// trim everywhere
