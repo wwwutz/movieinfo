@@ -61,12 +61,11 @@ func downloadFile(URL string, filename string) error {
 	}
 	defer file.Close()
 
-	len, err := file.Write(data.Bytes())
+	_, err = file.Write(data.Bytes())
 
 	if err != nil {
 		log.Fatalf("failed writing to file: %s", err)
 	}
-	fmt.Printf("\nLength: %d bytes", len)
 	return nil
 }
 
@@ -90,33 +89,39 @@ func tmdbURLfile(filename string, mID int) error {
 	return nil
 }
 
-func tmdbMovie(name string, year int) (*tmdb.Movie, error) {
-	// Replace any .'s in the title with spaces
+func tmdbMovie(name string, argsyear int) (*tmdb.Movie, error) {
 
-	db := tmdb.Init(TMDB_API)
+	var options = make(map[string]string)
 
-	lookup, _ := db.SearchMovie(name, nil)
+	if argsyear != 0 {
+		options["year"] = strconv.Itoa(argsyear)
+	}
 
 	mID := 0
 
-	mIDs := make(map[int]int)
-
+	db := tmdb.Init(TMDB_API)
+	lookup, _ := db.SearchMovie(name, options)
 	for _, element := range lookup.Results {
 		if mID == 0 {
 			// keep first
 			mID = element.ID
 		}
-		mIDs[mID] = +1
 		fmt.Printf("---------- ID: %d\n", element.ID)
 		fmt.Printf("OriginalTitle: %s\n", element.OriginalTitle)
 		fmt.Printf("        Title: %s\n", element.Title)
 		fmt.Printf("  ReleaseDate: %s\n", element.ReleaseDate)
 		fmt.Printf("   PosterPath: %s\n", element.PosterPath)
 		fmt.Printf(" BackdropPath: %s\n", element.BackdropPath)
-		fmt.Printf("\nResults = %#v\n\n", element)
+		//		fmt.Printf("\nResults = %#v\n\n", element)
+
+		year := 0
+		date, parseError := dateparse.ParseAny(element.ReleaseDate)
+		if parseError == nil {
+			year = date.Year()
+		}
 
 		if download {
-			mIDs[element.ID] += 1
+			tmdbURLfile(fmt.Sprintf("%s-%d-%d.URL", name, element.ID, year), element.ID)
 			filename := fmt.Sprintf("%s-%d-%s", name, element.ID, element.ReleaseDate)
 			if element.PosterPath != "" {
 				downloadFile("https://image.tmdb.org/t/p/original"+element.PosterPath, filename+"-poster.jpg")
@@ -131,15 +136,9 @@ func tmdbMovie(name string, year int) (*tmdb.Movie, error) {
 		}
 	}
 
-	if download {
-		for mIDk, _ := range mIDs {
-			tmdbURLfile(fmt.Sprintf("%s-%d.URL", name, mIDk), mIDk)
-		}
-	}
-
 	if mID != 0 {
-		res, _ := db.GetMovieImages(mID, nil)
-		fmt.Printf("Images: %#v\n", res)
+		//		res, _ := db.GetMovieImages(mID, nil)
+		//		fmt.Printf("Images: %#v\n", res)
 		return db.GetMovieInfo(mID, nil)
 	}
 
@@ -154,7 +153,6 @@ func cleanupname(name string) (string, int) {
 	clname := name
 	year := 0
 	nameyear := regexp.MustCompile(`(.*?)\s-\s([12]\d\d\d)(.*)`).FindStringSubmatch(name)
-	fmt.Printf("\nnameyear = %#v\n", nameyear)
 
 	if len(nameyear) > 0 {
 		clname = nameyear[1]
@@ -172,7 +170,7 @@ func cleanupname(name string) (string, int) {
 func Movie(name string, year int) (MovieResult, error) {
 
 	tmdbResult, err := tmdbMovie(name, year)
-	fmt.Printf("\nresult = %#v\n\n", tmdbResult)
+	//	fmt.Printf("\nresult = %#v\n\n", tmdbResult)
 	if err == nil {
 
 		// Parse release date
@@ -225,6 +223,7 @@ func main() {
 
 	app.Action = func(c *cli.Context) error {
 		args := c.Args().Get(0)
+
 		forceyear := c.Int("year")
 		title, year := cleanupname(args)
 		if forceyear > 0 {
@@ -240,9 +239,9 @@ func main() {
 		fmt.Println("   force: ", c.Bool("force"))
 		fmt.Println("    year: ", year)
 		fmt.Println("     max: ", maxe)
-		fmt.Println("  apikey: ", TMDB_API)
+		//		fmt.Println("  apikey: ", TMDB_API)
 
-		fmt.Println(Movie(title, year))
+		Movie(title, year)
 
 		return nil
 	}
