@@ -93,6 +93,8 @@ func tmdbMovie(name string, argsyear int) (*tmdb.Movie, error) {
 
 	var options = make(map[string]string)
 
+    options["language"] = "de-DE"
+
 	if argsyear != 0 {
 		options["year"] = strconv.Itoa(argsyear)
 	}
@@ -139,7 +141,11 @@ func tmdbMovie(name string, argsyear int) (*tmdb.Movie, error) {
 	if mID != 0 {
 		//		res, _ := db.GetMovieImages(mID, nil)
 		//		fmt.Printf("Images: %#v\n", res)
-		return db.GetMovieInfo(mID, nil)
+
+		var m *tmdb.Movie;
+		m,err := db.GetMovieInfo(mID, options)
+		fmt.Printf("tmdb.Movie: %#v\n", m)
+		return m,err
 	}
 
 	// Nothing found on TMdb
