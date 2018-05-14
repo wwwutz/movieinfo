@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/araddon/dateparse"
@@ -20,10 +21,16 @@ type MovieResult struct {
 	Title       string
 	ReleaseDate string
 	Year        int
-	Genres      []struct {
-		ID   int
-		Name string
-	}
+}
+
+type MyMovieTxt struct {
+	ID          int
+	Title       string
+	Year        int
+	TagLine     string
+	OverView    string
+	ReleaseDate string
+	ImdbId      string
 }
 
 var TMDB_API string
@@ -89,67 +96,129 @@ func tmdbURLfile(filename string, mID int) error {
 	return nil
 }
 
-func tmdbMovie(name string, argsyear int) (*tmdb.Movie, error) {
+func txtfile(filename string, data []byte) error {
+	if _, err := os.Stat(filename); err == nil {
+		// path/to/whatever exists
+		fmt.Println("### EXISTS: " + filename + " already exists. skipping")
+	} else {
+		file, err := os.Create(filename) // Truncates if file already exists, be careful!
+		if err != nil {
+			log.Fatalf("failed creating file: %s", err)
+		}
+		defer file.Close()
+
+		_, err = file.Write(data)
+
+		if err != nil {
+			log.Fatalf("failed writing to file: %s", err)
+		}
+	}
+	return nil
+}
+
+func tmdbMovieShort2txt(ms tmdb.MovieShort) ([]byte, error) {
+	buf, err := json.MarshalIndent(ms, "", "---")
+	if err != nil {
+		log.Fatalf("MarshalIndent: %s", err)
+	}
+	return buf, err
+}
+
+func tmdbMovie(mID int, name string, argsyear int) (*tmdb.Movie, error) {
 
 	var options = make(map[string]string)
 
-    options["language"] = "de-DE"
+	options["language"] = "de-DE"
 
 	if argsyear != 0 {
 		options["year"] = strconv.Itoa(argsyear)
 	}
 
-	mID := 0
-
 	db := tmdb.Init(TMDB_API)
-	lookup, _ := db.SearchMovie(name, options)
-	for _, element := range lookup.Results {
-		if mID == 0 {
-			// keep first
-			mID = element.ID
-		}
-		fmt.Printf("---------- ID: %d\n", element.ID)
-		fmt.Printf("OriginalTitle: %s\n", element.OriginalTitle)
-		fmt.Printf("        Title: %s\n", element.Title)
-		fmt.Printf("  ReleaseDate: %s\n", element.ReleaseDate)
-		fmt.Printf("   PosterPath: %s\n", element.PosterPath)
-		fmt.Printf(" BackdropPath: %s\n", element.BackdropPath)
-		//		fmt.Printf("\nResults = %#v\n\n", element)
 
-		year := 0
-		date, parseError := dateparse.ParseAny(element.ReleaseDate)
-		if parseError == nil {
-			year = date.Year()
-		}
+	// no mID supplied: go search for a couple of movies
+	if mID == 0 {
+		lookup, _ := db.SearchMovie(name, options)
+		if len(lookup.Results) == 1 {
 
-		if download {
-			tmdbURLfile(fmt.Sprintf("%s-%d-%d.URL", name, element.ID, year), element.ID)
-			filename := fmt.Sprintf("%s-%d-%s", name, element.ID, element.ReleaseDate)
-			if element.PosterPath != "" {
-				downloadFile("https://image.tmdb.org/t/p/original"+element.PosterPath, filename+"-poster.jpg")
+		} else {
+
+			for _, element := range lookup.Results {
+				if mID == 0 {
+					// keep first
+					mID = element.ID
+				}
+				fmt.Printf("---------- ID: %d\n", element.ID)
+				fmt.Printf("OriginalTitle: %s\n", element.OriginalTitle)
+				fmt.Printf("        Title: %s\n", element.Title)
+				fmt.Printf("  ReleaseDate: %s\n", element.ReleaseDate)
+				fmt.Printf("   PosterPath: %s\n", element.PosterPath)
+				fmt.Printf(" BackdropPath: %s\n", element.BackdropPath)
+				//		fmt.Printf("\nResults = %#v\n\n", element)
+
+				year := 0
+				date, parseError := dateparse.ParseAny(element.ReleaseDate)
+				if parseError == nil {
+					year = date.Year()
+				}
+
+				if download {
+					tmdbURLfile(fmt.Sprintf("%s-%d-%d.URL", name, element.ID, year), element.ID)
+					filename := fmt.Sprintf("%s-%d-%s", name, element.ID, element.ReleaseDate)
+					if element.PosterPath != "" {
+						downloadFile("https://image.tmdb.org/t/p/original"+element.PosterPath, filename+"-poster.jpg")
+					}
+					if element.BackdropPath != "" {
+						downloadFile("https://image.tmdb.org/t/p/original"+element.BackdropPath, filename+"-backdrop.jpg")
+					}
+
+					txt, err := tmdbMovieShort2txt(element)
+					if err == nil {
+						txtfile(fmt.Sprintf("%s-%d-%d.txt", name, element.ID, year), txt)
+					}
+				}
+				maxe -= 1
+				if maxe == 0 {
+					break
+				}
 			}
-			if element.BackdropPath != "" {
-				downloadFile("https://image.tmdb.org/t/p/original"+element.BackdropPath, filename+"-backdrop.jpg")
-			}
-		}
-		maxe -= 1
-		if maxe == 0 {
-			break
 		}
 	}
+
+	fmt.Printf("YEAH mID = %#v\n", mID)
 
 	if mID != 0 {
 		//		res, _ := db.GetMovieImages(mID, nil)
 		//		fmt.Printf("Images: %#v\n", res)
 
-		var m *tmdb.Movie;
-		m,err := db.GetMovieInfo(mID, options)
+		var m *tmdb.Movie
+		m, err := db.GetMovieInfo(mID, options)
 		fmt.Printf("tmdb.Movie: %#v\n", m)
-		return m,err
+
+		b, err := json.MarshalIndent(m, "", "---")
+		if err != nil {
+			fmt.Println("error:", err)
+		}
+		os.Stdout.Write(b)
+
+		return m, err
 	}
 
 	// Nothing found on TMdb
 	return nil, errors.New("no TMdb match found when looking up movie")
+}
+
+func mIDfromurlname(name string) int {
+	// check if name fits as .URL file, return found mID or 0
+	m := regexp.MustCompile(`-(\d+)-\d{4}.URL$`).FindStringSubmatch(name)
+	mID := 0
+	if len(m) > 0 {
+		mi, err := strconv.Atoi(m[1])
+		if err == nil && mi > 0 {
+			mID = mi
+		}
+	}
+	return mID
 }
 
 func cleanupname(name string) (string, int) {
@@ -173,9 +242,9 @@ func cleanupname(name string) (string, int) {
 	return clname, year
 }
 
-func Movie(name string, year int) (MovieResult, error) {
+func Movie(mID int, name string, year int) (MovieResult, error) {
 
-	tmdbResult, err := tmdbMovie(name, year)
+	tmdbResult, err := tmdbMovie(mID, name, year)
 	//	fmt.Printf("\nresult = %#v\n\n", tmdbResult)
 	if err == nil {
 
@@ -190,7 +259,6 @@ func Movie(name string, year int) (MovieResult, error) {
 			Title:       tmdbResult.Title,
 			ReleaseDate: tmdbResult.ReleaseDate,
 			Year:        year,
-			Genres:      tmdbResult.Genres,
 		}, err
 	}
 
@@ -220,6 +288,10 @@ func main() {
 			Name:  "max, m",
 			Usage: "max. entries, 0 unlimited",
 		},
+		cli.IntFlag{
+			Name:  "id, i",
+			Usage: "tmdb movie ID",
+		},
 		cli.StringFlag{
 			Name:   "TMDB_API",
 			Usage:  "tmdb.org API key",
@@ -228,26 +300,32 @@ func main() {
 	}
 
 	app.Action = func(c *cli.Context) error {
-		args := c.Args().Get(0)
+		arg := c.Args().Get(0)
 
 		forceyear := c.Int("year")
-		title, year := cleanupname(args)
+		title, year := cleanupname(arg)
 		if forceyear > 0 {
 			year = forceyear
+		}
+		// check if we supplied a complete .URL files as arg
+		mID := c.Int("id")
+		if mID == 0 {
+			mID = mIDfromurlname(arg)
 		}
 
 		maxe = c.Int("max")
 		download = c.Bool("download")
 		TMDB_API = c.String("TMDB_API")
-		fmt.Println("    args: ", args)
+		fmt.Println("     arg: ", arg)
 		fmt.Println("   title: ", title)
+		fmt.Println("      id: ", mID)
 		fmt.Println("download: ", download)
 		fmt.Println("   force: ", c.Bool("force"))
 		fmt.Println("    year: ", year)
 		fmt.Println("     max: ", maxe)
 		//		fmt.Println("  apikey: ", TMDB_API)
 
-		Movie(title, year)
+		Movie(mID, title, year)
 
 		return nil
 	}
