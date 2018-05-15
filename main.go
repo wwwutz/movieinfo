@@ -164,7 +164,7 @@ func tmdbMovie(mID int, name string, argsyear int) (*tmdb.Movie, error) {
 
 				if download {
 					tmdbURLfile(fmt.Sprintf("%s-%d-%d.URL", name, element.ID, year), element.ID)
-					filename := fmt.Sprintf("%s-%d-%s", name, element.ID, element.ReleaseDate)
+					filename := fmt.Sprintf("%s-%d-%d", name, element.ID, year)
 					if element.PosterPath != "" {
 						downloadFile("https://image.tmdb.org/t/p/original"+element.PosterPath, filename+"-poster.jpg")
 					}
