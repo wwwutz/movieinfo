@@ -86,22 +86,25 @@ func tmdbURLfile(filename string, mID int) error {
 	return nil
 }
 
-func txtfile(filename string, data []byte) error {
+func exists(filename string) bool {
 	if _, err := os.Stat(filename); err == nil {
-		// path/to/whatever exists
-		fmt.Println("### EXISTS: " + filename + " already exists. skipping")
-	} else {
-		file, err := os.Create(filename) // Truncates if file already exists, be careful!
-		if err != nil {
-			log.Fatalf("failed creating file: %s", err)
-		}
-		defer file.Close()
+		fmt.Println("### EXISTS: " + filename + " exists.")
+		return true
+	}
+	return false
+}
 
-		_, err = file.Write(data)
+func txtfile(filename string, data []byte) error {
+	file, err := os.Create(filename) // Truncates if file already exists
+	if err != nil {
+		log.Fatalf("failed creating file: %s", err)
+	}
+	defer file.Close()
 
-		if err != nil {
-			log.Fatalf("failed writing to file: %s", err)
-		}
+	_, err = file.Write(data)
+
+	if err != nil {
+		log.Fatalf("failed writing to file: %s", err)
 	}
 	return nil
 }
@@ -116,7 +119,7 @@ func tmdbMovieShort2txt(ms tmdb.MovieShort) ([]byte, error) {
 
 func days(s int, n int) string {
 	if s == 0 {
-		return "0 secs"
+		return "0 sec"
 	}
 
 	var T [4]int
@@ -141,7 +144,7 @@ func days(s int, n int) string {
 	T[j] += t // min
 	fmt.Println(T[0:4])
 	var L []string
-	x := [4]string{"days", "hrs", "min", "secs"}
+	x := [4]string{"d", "h", "min", "sec"}
 	j = 0
 	for i := 0; i < len(x); i++ {
 		y := T[i]
@@ -190,8 +193,9 @@ func tmdbMovie2txt(tm tmdb.Movie) ([]byte, error) {
 	if err != nil {
 		log.Fatalf("MarshalIndent: %s", err)
 	}
+	fmt.Printf(string(tmi))
 
-	return append(tmi, mmi...), err
+	return mmi, err
 }
 
 func tmdbMovie(mID int, name string, argsyear int) (*tmdb.Movie, error) {
@@ -234,6 +238,8 @@ func tmdbMovie(mID int, name string, argsyear int) (*tmdb.Movie, error) {
 				}
 
 				if download {
+					name, _ = cleanupname(element.Title)
+
 					tmdbURLfile(fmt.Sprintf("%s-%d-%04d.URL", name, element.ID, year), element.ID)
 					filename := fmt.Sprintf("%s-%d-%04d", name, element.ID, year)
 					if element.PosterPath != "" {
@@ -241,11 +247,6 @@ func tmdbMovie(mID int, name string, argsyear int) (*tmdb.Movie, error) {
 					}
 					if element.BackdropPath != "" {
 						downloadFile("https://image.tmdb.org/t/p/original"+element.BackdropPath, filename+"-backdrop.jpg")
-					}
-
-					txt, err := tmdbMovieShort2txt(element)
-					if err == nil {
-						txtfile(fmt.Sprintf("%s-%d-%d.txt", name, element.ID, year), txt)
 					}
 				}
 				maxe -= 1
@@ -278,12 +279,24 @@ func tmdbMovie(mID int, name string, argsyear int) (*tmdb.Movie, error) {
 			year = date.Year()
 		}
 
-		if name == "" {
-			name, _ = cleanupname(m.Title)
-		}
-		txt, err := tmdbMovie2txt(*m)
-		if err == nil {
-			txtfile(fmt.Sprintf("%s-%d-%04d.txt", name, mID, year), txt)
+		name, _ = cleanupname(m.Title)
+
+		if download {
+			txt, err := tmdbMovie2txt(*m)
+			if err == nil {
+				txtfile(fmt.Sprintf("%s-%d-%04d.txt", name, mID, year), txt)
+			}
+
+			tmdbURLfile(fmt.Sprintf("%s-%d-%04d.URL", name, mID, year), mID)
+
+			filename := fmt.Sprintf("%s-%d-%04d", name, mID, year)
+			if m.PosterPath != "" {
+				downloadFile("https://image.tmdb.org/t/p/original"+m.PosterPath, filename+"-poster.jpg")
+			}
+			if m.BackdropPath != "" {
+				downloadFile("https://image.tmdb.org/t/p/original"+m.BackdropPath, filename+"-backdrop.jpg")
+			}
+
 		}
 
 		return m, err
@@ -295,7 +308,7 @@ func tmdbMovie(mID int, name string, argsyear int) (*tmdb.Movie, error) {
 
 func mIDfromurlname(name string) int {
 	// check if name fits as .URL file, return found mID or 0
-	m := regexp.MustCompile(`-(\d+)-\d{4}.URL$`).FindStringSubmatch(name)
+	m := regexp.MustCompile(`-(\d+)-\d{4}.\w{2,3}$`).FindStringSubmatch(name)
 	mID := 0
 	if len(m) > 0 {
 		mi, err := strconv.Atoi(m[1])
@@ -321,7 +334,8 @@ func cleanupname(name string) (string, int) {
 	}
 	//	re = regexp.MustCompile(`[_.\-]`)
 	//	clname = re.ReplaceAllString(clname, ``)
-	clname = regexp.MustCompile(`\-\d+\-\d\d\d\d\.\S+$`).ReplaceAllString(clname, ``)
+	clname = regexp.MustCompile(`\-\d+\-\d\d\d\d\.\w{2,3}$`).ReplaceAllString(clname, ``)
+	clname = regexp.MustCompile(`\.\w{2,3}$`).ReplaceAllString(clname, ``)
 	clname = regexp.MustCompile(`[_.\-:/]`).ReplaceAllString(clname, ` `)
 	// trim everywhere
 	clname = strings.Join(strings.Fields(clname), " ")
