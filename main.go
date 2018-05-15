@@ -152,8 +152,8 @@ func tmdbMovie(mID int, name string, argsyear int) (*tmdb.Movie, error) {
 				fmt.Printf("OriginalTitle: %s\n", element.OriginalTitle)
 				fmt.Printf("        Title: %s\n", element.Title)
 				fmt.Printf("  ReleaseDate: %s\n", element.ReleaseDate)
-				fmt.Printf("   PosterPath: %s\n", element.PosterPath)
-				fmt.Printf(" BackdropPath: %s\n", element.BackdropPath)
+				// fmt.Printf("   PosterPath: %s\n", element.PosterPath)
+				// fmt.Printf(" BackdropPath: %s\n", element.BackdropPath)
 				//		fmt.Printf("\nResults = %#v\n\n", element)
 
 				year := 0
