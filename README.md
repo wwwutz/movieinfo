@@ -202,13 +202,13 @@ Which is, as we see, a bad thing. The Arnie version is not the first one to pop 
 
 ### supply tmdb.org ID via options or filename
 
-restricting downloads and search can be achieved either by
+restricting search to a know ID can be achieved either by
 ```
-$ ./movieinfo -d -i 64635
+$ ./movieinfo -i 64635
 ```
 
 or by supplying a complete movie-info generated `.URL` file:
 
 ```
-$ ./movieinfo -d total 'recall-64635-2012.URL'
+$ ./movieinfo "total recall-64635-2012.URL"
 ```

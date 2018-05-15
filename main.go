@@ -23,16 +23,6 @@ type MovieResult struct {
 	Year        int
 }
 
-type MyMovieTxt struct {
-	ID          int
-	Title       string
-	Year        int
-	TagLine     string
-	OverView    string
-	ReleaseDate string
-	ImdbId      string
-}
-
 var TMDB_API string
 var maxe int
 var download bool
@@ -124,6 +114,86 @@ func tmdbMovieShort2txt(ms tmdb.MovieShort) ([]byte, error) {
 	return buf, err
 }
 
+func days(s int, n int) string {
+	if s == 0 {
+		return "0 secs"
+	}
+
+	var T [4]int
+
+	j := 0
+	t := int(s / (60 * 60 * 24))
+	T[j] += t // days
+	j += 1
+	s -= t * (60 * 60 * 24)
+
+	t = int(s / (60 * 60))
+	T[j] += t // hrs
+	j += 1
+	s -= t * (60 * 60)
+
+	t = int(s / 60)
+	T[j] += t // min
+	j += 1
+	s -= t * 60
+
+	t = int(s)
+	T[j] += t // min
+	fmt.Println(T[0:4])
+	var L []string
+	x := [4]string{"days", "hrs", "min", "secs"}
+	j = 0
+	for i := 0; i < len(x); i++ {
+		y := T[i]
+		if y != 0 {
+			if n != 0 {
+				n -= 1
+				if n < 0 {
+					break
+				}
+			}
+			L = append(L, fmt.Sprintf("%d %s", y, x[i]))
+			j += 1
+		}
+	}
+	return strings.Join(L, " ")
+}
+
+func tmdbMovie2txt(tm tmdb.Movie) ([]byte, error) {
+	type MyMovieTxt struct {
+		ID            int
+		ImdbID        string
+		Title         string
+		Tagline       string
+		OriginalTitle string
+		ReleaseDate   string
+		Overview      string
+		Runtime       string
+	}
+
+	mm := MyMovieTxt{
+		ID:            tm.ID,
+		ImdbID:        tm.ImdbID,
+		Title:         tm.Title,
+		Tagline:       tm.Tagline,
+		OriginalTitle: tm.OriginalTitle,
+		ReleaseDate:   tm.ReleaseDate,
+		Overview:      tm.Overview,
+		Runtime:       days(int(tm.Runtime)*60, 0),
+	}
+
+	tmi, err := json.MarshalIndent(tm, "", "-")
+	if err != nil {
+		log.Fatalf("MarshalIndent: %s", err)
+	}
+	mmi, err := json.MarshalIndent(mm, "", "")
+	if err != nil {
+		log.Fatalf("MarshalIndent: %s", err)
+	}
+
+	return append(tmi, mmi...), err
+}
+
 func tmdbMovie(mID int, name string, argsyear int) (*tmdb.Movie, error) {
 
 	var options = make(map[string]string)
@@ -139,15 +209,16 @@ func tmdbMovie(mID int, name string, argsyear int) (*tmdb.Movie, error) {
 	// no mID supplied: go search for a couple of movies
 	if mID == 0 {
 		lookup, _ := db.SearchMovie(name, options)
+		// one result: that's fine
 		if len(lookup.Results) == 1 {
-
+			mID = lookup.Results[0].ID
 		} else {
+			// more than one result:
+			//  - download posters & backdrop
+			//  - create minimal files to choose from
+			// - do not download compltete tmdb.Movie
 
 			for _, element := range lookup.Results {
-				if mID == 0 {
-					// keep first
-					mID = element.ID
-				}
 				fmt.Printf("---------- ID: %d\n", element.ID)
 				fmt.Printf("OriginalTitle: %s\n", element.OriginalTitle)
 				fmt.Printf("        Title: %s\n", element.Title)
@@ -163,8 +234,8 @@ func tmdbMovie(mID int, name string, argsyear int) (*tmdb.Movie, error) {
 				}
 
 				if download {
-					tmdbURLfile(fmt.Sprintf("%s-%d-%d.URL", name, element.ID, year), element.ID)
-					filename := fmt.Sprintf("%s-%d-%d", name, element.ID, year)
+					tmdbURLfile(fmt.Sprintf("%s-%d-%04d.URL", name, element.ID, year), element.ID)
+					filename := fmt.Sprintf("%s-%d-%04d", name, element.ID, year)
 					if element.PosterPath != "" {
 						downloadFile("https://image.tmdb.org/t/p/original"+element.PosterPath, filename+"-poster.jpg")
 					}
@@ -201,6 +272,20 @@ func tmdbMovie(mID int, name string, argsyear int) (*tmdb.Movie, error) {
 		}
 		os.Stdout.Write(b)
 
+		year := 0
+		date, err := dateparse.ParseAny(m.ReleaseDate)
+		if err == nil {
+			year = date.Year()
+		}
+
+		if name == "" {
+			name, _ = cleanupname(m.Title)
+		}
+		txt, err := tmdbMovie2txt(*m)
+		if err == nil {
+			txtfile(fmt.Sprintf("%s-%d-%04d.txt", name, mID, year), txt)
+		}
+
 		return m, err
 	}
 
@@ -225,6 +310,7 @@ func cleanupname(name string) (string, int) {
 	// " - 2015"  ==> year
 	//  getyear := regexp.MustCompile(`\s-\s([12]\d\d\d)`)
 	//	year,_ := strconv.Atoi(getyear.FindString(name))
+	// total recall-861-1990.URL ==> total recall
 	clname := name
 	year := 0
 	nameyear := regexp.MustCompile(`(.*?)\s-\s([12]\d\d\d)(.*)`).FindStringSubmatch(name)
@@ -235,8 +321,8 @@ func cleanupname(name string) (string, int) {
 	}
 	//	re = regexp.MustCompile(`[_.\-]`)
 	//	clname = re.ReplaceAllString(clname, ``)
-
-	clname = regexp.MustCompile(`[_.\-]`).ReplaceAllString(clname, ` `)
+	clname = regexp.MustCompile(`\-\d+\-\d\d\d\d\.\S+$`).ReplaceAllString(clname, ``)
+	clname = regexp.MustCompile(`[_.\-:/]`).ReplaceAllString(clname, ` `)
 	// trim everywhere
 	clname = strings.Join(strings.Fields(clname), " ")
 	return clname, year
@@ -324,7 +410,6 @@ func main() {
 		fmt.Println("    year: ", year)
 		fmt.Println("     max: ", maxe)
 		//		fmt.Println("  apikey: ", TMDB_API)
-
 		Movie(mID, title, year)
 
 		return nil
