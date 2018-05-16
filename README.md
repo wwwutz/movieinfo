@@ -203,3 +203,69 @@ $ ./movieinfo "total recall-64635-2012.URL"
 It'll try to do it's very best to extract the ID from a filename. But why should it ?
 
 Well, it downloads and creates the most interesting `.txt` file only it you either supply the ID or there is only one result fopr your search.
+
+# the interesting part
+```
+$ ./movieinfo -i 861
+     arg:  
+  search:  
+      id:  861
+download:  false
+    year:  0
+     max:  0
+ verbose:  false
+
+### START .txt
+tmdbID:   861
+Title:    Total Recall - Die totale Erinnerung
+Tagline:  Mach dich bereit für die Reise deines Lebens.
+OTitle:   Total Recall
+Release:  1990-06-01
+Runtime:  1 h 53 min
+Overview: In ferner Zukunft führt Bauarbeiter Douglas Quaid ein zufriedenes Leben mit seiner attraktiven Ehefrau Lori. Einzig seine immer wiederkehrenden Albträume vom Planeten Mars quälen ihn und so entschließt er sich zu einer virtuellen Reise auf den Roten Planeten. Doch bei der Erinnerungsimplantation geht etwas schief und Quaids Leben ändert sich radikal. Ist er wirklich derjenige, der er zu sein glaubt? Quaid begibt er sich auf die gefährliche Suche nach seiner wahren Identität.
+
+-  1. Arnold Schwarzenegger: Douglas Quaid/Hauser
+-  2. Sharon Stone: Lori
+-  3. Rachel Ticotin: Melina
+-  4. Ronny Cox: Vilos Cohaagen
+-  5. Michael Ironside: Richter
+-  6. Marshall Bell: George/Kuato
+-  7. Roy Brocksmith: Dr. Edgemar
+-  8. Ray Baker: Bob McClane
+-  9. Rosemary Dunsmore: Dr. Lull
+- 10. Dean Norris: Tony
+- 11. Debbie Lee Carrington: Thumbelina
+- 12. Lycia Naff: Mary
+- 13. Robert Costanzo: Harry
+- 14. Marc Alaimo: Everett
+- 15. Michael Gregory: Rebel Lieutenant
+- 16. Mickey Jones: Burly Miner
+- 17. Robert Picardo: Voice of Johnnycab (voice)
+- 18. Michael Champion: Helm
+- 19. Mel Johnson Jr.: Benny
+- 20. David Knell: Ernie
+- 21. Alexia Robinson: Tiffany
+
+/  1. 52fe4283c3a36847f8024e9b Arnold Schwarzenegger
+/  2. 52fe4283c3a36847f8024e9f Sharon Stone
+/  3. 52fe4283c3a36847f8024ea3 Rachel Ticotin
+/  4. 52fe4283c3a36847f8024ea7 Ronny Cox
+/  5. 52fe4283c3a36847f8024eab Michael Ironside
+/  6. 52fe4283c3a36847f8024eaf Marshall Bell
+/  7. 52fe4283c3a36847f8024ebb Roy Brocksmith
+/  8. 52fe4283c3a36847f8024ebf Ray Baker
+/  9. 567b9b1f9251417de3001e50 Rosemary Dunsmore
+/ 10. 567b9b50c3a3684bcc001f93 Dean Norris
+/ 11. 567b9bab9251417ddf001fb7 Debbie Lee Carrington
+/ 12. 567b9bde9251417de5001e77 Lycia Naff
+/ 13. 567b9c05c3a3684be3001e5f Robert Costanzo
+/ 14. 567b9c3ec3a3684bd3002322 Marc Alaimo
+/ 15. 567b9c67c3a3684bcc001fcb Michael Gregory
+/ 16. 567b9c9b9251417de9001f6f Mickey Jones
+/ 17. 567b9cce9251417dda001e8d Robert Picardo
+/ 18. 52fe4283c3a36847f8024eb7 Michael Champion
+/ 19. 52fe4283c3a36847f8024eb3 Mel Johnson Jr.
+/ 20. 578ce7fcc3a3682bb2011939 David Knell
+/ 21. 578ce80ac3a3685b4400a435 Alexia Robinson
+###  END  .txt
+```
