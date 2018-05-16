@@ -47,7 +47,7 @@ Set up you API key. Either save it as environment variable `TMDB_API` or supply 
  We'll find four versions of "Total Recall". The third ID 180 is obviously wrong.
 
 ```
-wwwutz@eldersoftheinternet:movieinfo (master)$ ./movieinfo "total recall"
+$ ./movieinfo "total recall"
     args:  total recall
    title:  total recall
 download:  false
@@ -86,7 +86,7 @@ Let's just download all available poster and backdrop images and create a `.URL`
 
 before:
 ```
-wwwutz@eldersoftheinternet:movieinfo (master)$ ls -l
+$ ls -l
 total 8748
 -rw-r--r-- 1 wwwutz wwwutz    1072 May  8 15:11 LICENSE
 -rw-r--r-- 1 wwwutz wwwutz    1955 May  9 11:39 README.md
@@ -95,7 +95,7 @@ total 8748
 ```
 calling `movieinfo` command with `--download` option:
 ```
-wwwutz@eldersoftheinternet:movieinfo (master)$ ./movieinfo -d "total recall"
+$ ./movieinfo -d "total recall"
     args:  total recall
    title:  total recall
 download:  true
@@ -137,7 +137,7 @@ OriginalTitle: Minority Report
 now we have:
 
 ```
-wwwutz@eldersoftheinternet:movieinfo (master)$ ls -l
+$ ls -l
 total 10216
 -rw-r--r-- 1 wwwutz wwwutz    1072 May  8 15:11 LICENSE
 -rw-r--r-- 1 wwwutz wwwutz    1955 May  9 11:39 README.md
@@ -166,14 +166,14 @@ And now we can start sorting out. We're looking for the Arnie version.
 Let's get rid of the others (using filename completion via the tabulator key `[TAB]`. Press it , don't type:
 
 ```
-wwwutz@eldersoftheinternet:movieinfo (master)$ rm tot[TAB]
+$ rm tot[TAB]
 total recall-180-2002-06-20-backdrop.jpg    total recall-408340.URL                     total recall-64635.URL                      total recall-861.URL
 total recall-180-2002-06-20-poster.jpg      total recall-64635-2012-08-02-backdrop.jpg  total recall-861-1990-06-01-backdrop.jpg    
 total recall-180.URL                        total recall-64635-2012-08-02-poster.jpg    total recall-861-1990-06-01-poster.jpg      
-wwwutz@eldersoftheinternet:movieinfo (master)$ rm total\ recall-180-[TAB]
+$ rm total\ recall-180-[TAB]
 total recall-180-2002-06-20-backdrop.jpg  total recall-180-2002-06-20-poster.jpg    
-wwwutz@eldersoftheinternet:movieinfo (master)$ rm total\ recall-180-2002-06-20-*
-wwwutz@eldersoftheinternet:movieinfo (master)$
+$ rm total\ recall-180-2002-06-20-*
+$
 ```
 
 and so on. Or use a file manager.
@@ -183,7 +183,7 @@ and so on. Or use a file manager.
 use the `--max=n` option. This limits the output to `n` results. The default is zero (0) which means unlimited. Let's try one (1).
 
 ```
-wwwutz@eldersoftheinternet:movieinfo (master)$ ./movieinfo -m 1 "total recall"
+$ ./movieinfo -m 1 "total recall"
     args:  total recall
    title:  total recall
 download:  false
@@ -199,3 +199,16 @@ OriginalTitle: Total Recall
 ```
 
 Which is, as we see, a bad thing. The Arnie version is not the first one to pop up. Anyways, I'm using 4 or 5 for scripts (`--max=5`), in 99% of all cases the movie I was looking for pops up in the first results.
+
+### supply tmdb.org ID via options or filename
+
+restricting search to a know ID can be achieved either by
+```
+$ ./movieinfo -i 64635
+```
+
+or by supplying a complete movie-info generated `.URL` file:
+
+```
+$ ./movieinfo "total recall-64635-2012.URL"
+```
