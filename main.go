@@ -233,7 +233,7 @@ func tmdbMovie(mID int, search string, argsyear int) (*tmdb.Movie, error) {
 
 				if download {
 					// .URL, -{poster,backdrop}.jpg
-					cleantitle, _ := cleanupname(element.Title)
+					cleantitle, _ := cleanuptitle(element.Title)
 
 					filename := fmt.Sprintf("%s-%d-%04d", cleantitle, element.ID, year)
 
@@ -289,7 +289,7 @@ func tmdbMovie(mID int, search string, argsyear int) (*tmdb.Movie, error) {
 
 		if download {
 			// .txt, .URL, -{poster,backdrop}.jpg
-			cleantitle, _ := cleanupname(m.Title)
+			cleantitle, _ := cleanuptitle(m.Title)
 
 			filename := fmt.Sprintf("%s-%d-%04d", cleantitle, mID, year)
 
@@ -327,11 +327,12 @@ func mIDfromurlname(name string) int {
 	return mID
 }
 
-func cleanupname(name string) (string, int) {
+func cleanuptitle(name string) (string, int) {
 	// " - 2015"  ==> year
 	//  getyear := regexp.MustCompile(`\s-\s([12]\d\d\d)`)
 	//	year,_ := strconv.Atoi(getyear.FindString(name))
 	// total recall-861-1990.URL ==> total recall
+	// get rid of bad chars
 	clname := name
 	year := 0
 	nameyear := regexp.MustCompile(`(.*?)\s-\s([12]\d\d\d)(.*)`).FindStringSubmatch(name)
@@ -344,7 +345,7 @@ func cleanupname(name string) (string, int) {
 	//	clname = re.ReplaceAllString(clname, ``)
 	clname = regexp.MustCompile(`\-\d+\-\d\d\d\d\.\w{2,3}$`).ReplaceAllString(clname, ``)
 	clname = regexp.MustCompile(`\.\w{2,3}$`).ReplaceAllString(clname, ``)
-	clname = regexp.MustCompile(`[_.\-:/]`).ReplaceAllString(clname, ` `)
+	clname = regexp.MustCompile(`[_.\-:/\?\*]`).ReplaceAllString(clname, ` `)
 	// trim everywhere
 	clname = strings.Join(strings.Fields(clname), " ")
 	return clname, year
@@ -411,7 +412,7 @@ func main() {
 		arg := c.Args().Get(0)
 
 		forceyear := c.Int("year")
-		search, year := cleanupname(arg)
+		search, year := cleanuptitle(arg)
 		if forceyear > 0 {
 			year = forceyear
 		}
