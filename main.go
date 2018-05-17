@@ -92,16 +92,11 @@ func exists(filename string) bool {
 
 func writefile(filename string, data []byte) error {
 	file, err := os.Create(filename) // Truncates if file already exists
-	if err != nil {
-		log.Fatalf("failed creating file: %s", err)
-	}
+	exiton(err, "Create("+filename+")")
 	defer file.Close()
 
 	_, err = file.Write(data)
-
-	if err != nil {
-		log.Fatalf("failed writing to file: %s", err)
-	}
+	exiton(err, "writefile("+filename+")")
 	return nil
 }
 
@@ -167,15 +162,24 @@ func dumptmdbMovie(m *tmdb.Movie) error {
 	return err
 }
 
-func panicon(err error, msg string) {
-	if err != nil {
-		_, file, no, ok := runtime.Caller(1)
-		if ok {
-			panic(fmt.Sprintf("// %s failed with err=%v\n// %s#%d\n", msg, err, file, no))
-		} else {
-         	panic(fmt.Sprintf("// %s failed with err=%v\n", msg, err))
-		}
+func exiton(err error, msg string) {
+	r := "panic exit."
+	if err == nil {
+		return
 	}
+	pc, file, no, ok := runtime.Caller(1)
+	details := runtime.FuncForPC(pc)
+	d := ""
+	if details != nil {
+		d = " in " + details.Name()+"()"
+	}
+	if ok {
+		r = fmt.Sprintf("// %s failed%s with err=%v\n// %s#%d", msg, d, err, file, no)
+	} else {
+		r = fmt.Sprintf("// %s failed%s with err=%v", msg, d, err)
+	}
+	fmt.Println(r)
+	os.Exit(1)
 }
 
 func tmdbMovie2txt(tm tmdb.Movie) (string, error) {
@@ -308,7 +312,7 @@ func tmdbMovie(mID int, search string, argsyear int) (*tmdb.Movie, error) {
 		}
 
 		txt, err := tmdbMovie2txt(*m)
-		panicon(err,"tmdbMovie2txt")
+		exiton(err, "tmdbMovie2txt")
 
 		fmt.Printf("### START .txt\n%s###  END  .txt\n", txt)
 
