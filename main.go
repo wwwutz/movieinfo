@@ -289,7 +289,7 @@ func tmdbMovie(mID int, search string, argsyear int) (*tmdb.Movie, error) {
 		var m *tmdb.Movie
 		options["append_to_response"] = "credits"
 		m, err := db.GetMovieInfo(mID, options)
-		panicon(err,"GetMovieInfo1")
+		exiton(err, "GetMovieInfo1")
 
 		if verbose {
 			dumptmdbMovie(m)
@@ -299,8 +299,8 @@ func tmdbMovie(mID int, search string, argsyear int) (*tmdb.Movie, error) {
 		if m.Overview == "" && options["language"] != m.OriginalLanguage {
 			fmt.Printf("# Overview empty. Switching from %s to %s, retrying\n", options["language"], m.OriginalLanguage)
 			options["language"] = m.OriginalLanguage
-			m, err := db.GetMovieInfo(mID * -1, options)
-			panicon(err,"GetMovieInfo2")
+			m, err = db.GetMovieInfo(mID, options)
+			exiton(err, "GetMovieInfo("+options["language"]+")")
 			if verbose {
 				dumptmdbMovie(m)
 			}
