@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"runtime"
 	"strconv"
 	"strings"
 
@@ -157,6 +158,26 @@ func li(i int) int {
 	return n
 }
 
+func dumptmdbMovie(m *tmdb.Movie) error {
+	b, err := json.MarshalIndent(m, "", "    ")
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+	os.Stdout.Write(b)
+	return err
+}
+
+func panicon(err error, msg string) {
+	if err != nil {
+		_, file, no, ok := runtime.Caller(1)
+		if ok {
+			panic(fmt.Sprintf("// %s failed with err=%v\n// %s#%d\n", msg, err, file, no))
+		} else {
+         	panic(fmt.Sprintf("// %s failed with err=%v\n", msg, err))
+		}
+	}
+}
+
 func tmdbMovie2txt(tm tmdb.Movie) (string, error) {
 
 	txt := fmt.Sprintf("tmdbID:   %d\n", tm.ID)
@@ -212,7 +233,7 @@ func tmdbMovie(mID int, search string, argsyear int) (*tmdb.Movie, error) {
 			// more than one result:
 			//  - download posters & backdrop
 			//  - create minimal files to choose from
-			// - do not download compltete tmdb.Movie
+			// - do not download complete tmdb.Movie
 
 			for _, element := range lookup.Results {
 				fmt.Printf("---------- ID: %d\n", element.ID)
@@ -264,15 +285,21 @@ func tmdbMovie(mID int, search string, argsyear int) (*tmdb.Movie, error) {
 		var m *tmdb.Movie
 		options["append_to_response"] = "credits"
 		m, err := db.GetMovieInfo(mID, options)
+		panicon(err,"GetMovieInfo1")
 
 		if verbose {
-			fmt.Printf("tmdb.Movie: %#v\n", m)
+			dumptmdbMovie(m)
+		}
 
-			b, err := json.MarshalIndent(m, "", "    ")
-			if err != nil {
-				fmt.Println("error:", err)
+		// no overview in our language ?
+		if m.Overview == "" && options["language"] != m.OriginalLanguage {
+			fmt.Printf("# Overview empty. Switching from %s to %s, retrying\n", options["language"], m.OriginalLanguage)
+			options["language"] = m.OriginalLanguage
+			m, err := db.GetMovieInfo(mID * -1, options)
+			panicon(err,"GetMovieInfo2")
+			if verbose {
+				dumptmdbMovie(m)
 			}
-			os.Stdout.Write(b)
 		}
 		year := 0
 		date, err := dateparse.ParseAny(m.ReleaseDate)
@@ -281,9 +308,7 @@ func tmdbMovie(mID int, search string, argsyear int) (*tmdb.Movie, error) {
 		}
 
 		txt, err := tmdbMovie2txt(*m)
-		if err != nil {
-			log.Fatalf("tmdbMovie2txt failed: %s", err)
-		}
+		panicon(err,"tmdbMovie2txt")
 
 		fmt.Printf("### START .txt\n%s###  END  .txt\n", txt)
 
