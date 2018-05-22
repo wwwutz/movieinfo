@@ -260,10 +260,10 @@ func tmdbMovie(mID int, search string, argsyear int) (*tmdb.Movie, error) {
 					// .URL, -{poster,backdrop}.jpg
 					cleantitle, _ := cleanuptitle(element.Title)
 
-					filename := fmt.Sprintf("%s-%d-%04d", cleantitle, element.ID, year)
+					filename := fmt.Sprintf("%s-%d", cleantitle, element.ID)
 
 					url := fmt.Sprintf("[InternetShortcut]\r\nURL=https://www.themoviedb.org/movie/%d\r\n", element.ID)
-					writefile(filename+".URL", []byte(url))
+					writefile(filename+fmt.Sprintf("-%04d.URL",year), []byte(url))
 
 					if element.PosterPath != "" {
 						downloadFile("https://image.tmdb.org/t/p/original"+element.PosterPath, filename+"-poster.jpg")
@@ -320,12 +320,12 @@ func tmdbMovie(mID int, search string, argsyear int) (*tmdb.Movie, error) {
 			// .txt, .URL, -{poster,backdrop}.jpg
 			cleantitle, _ := cleanuptitle(m.Title)
 
-			filename := fmt.Sprintf("%s-%d-%04d", cleantitle, mID, year)
+			filename := fmt.Sprintf("%s-%d", cleantitle, mID)
 
 			writefile(filename+".txt", []byte(txt))
 
 			url := fmt.Sprintf("[InternetShortcut]\r\nURL=https://www.themoviedb.org/movie/%d\r\n", mID)
-			writefile(filename+".URL", []byte(url))
+			writefile(filename+fmt.Sprintf("-%04d.URL",year), []byte(url))
 
 			if m.PosterPath != "" {
 				downloadFile("https://image.tmdb.org/t/p/original"+m.PosterPath, filename+"-poster.jpg")
