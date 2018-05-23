@@ -1,6 +1,8 @@
 # movieinfo
 get ridiculous least information from tmdb
 
+The idea is to create a text file with movie meta information and download a poster and backdrop image into your current directory. The created text file has no distractive formatting and can be fed to `grep` or maybe  `find /movies -type f -name '*.txt' -print0 | xargs -0 grep -i schwarzenegger` . Which is a good thing.
+
 # warning
 
 Do **not** take this source as go/golang reference. I'm a `perl` person. This is my first try to do a little bit more with golang. Based on `"golang string to int"` or `"golang write file"` web searches.
@@ -85,11 +87,12 @@ Let's just download all available poster and backdrop images and create a `.URL`
 before:
 ```
 $ ls -l
-total 8748
+total 17600
 -rw-r--r-- 1 wwwutz wwwutz    1072 May  8 15:11 LICENSE
--rw-r--r-- 1 wwwutz wwwutz    1955 May  9 11:39 README.md
--rw-r--r-- 1 wwwutz wwwutz    5776 May  9 11:50 main.go
--rwxr-xr-x 1 wwwutz wwwutz 8941192 May  9 12:00 movieinfo
+-rw-r--r-- 1 wwwutz wwwutz    9504 May 17 08:16 README.md
+-rw-r--r-- 1 wwwutz wwwutz   11315 May 23 08:32 main.go
+-rwxr-xr-x 1 wwwutz wwwutz 9059900 May 23 08:32 movieinfo
+-rwxr-xr-x 1 wwwutz wwwutz 8931328 May 23 08:32 movieinfo.exe
 ```
 calling `movieinfo` command with `--download` option:
 ```
@@ -102,19 +105,19 @@ download:  true
      max:  0
  verbose:  false
 
----------- ID: 64635
-        Title: Total Recall
-  ReleaseDate: 2012-08-02
-
-### download(https://image.tmdb.org/t/p/original/4zgwx4HySRVjqSlmbrEKetJr5qo.jpg, Total Recall-64635-2012-poster.jpg)
-### download(https://image.tmdb.org/t/p/original/orFQbyZ6g7kPFaJXmgty0M88wJ0.jpg, Total Recall-64635-2012-backdrop.jpg)
 ---------- ID: 861
         Title: Total Recall - Die totale Erinnerung
 OriginalTitle: Total Recall
   ReleaseDate: 1990-06-01
 
-### download(https://image.tmdb.org/t/p/original/unjJqoBkzdUIA5Bi1rDdVHo0949.jpg, Total Recall Die totale Erinnerung-861-1990-poster.jpg)
-### download(https://image.tmdb.org/t/p/original/rPqCxVXBD89jeWMgJU3MeFA6GDV.jpg, Total Recall Die totale Erinnerung-861-1990-backdrop.jpg)
+### download(https://image.tmdb.org/t/p/original/unjJqoBkzdUIA5Bi1rDdVHo0949.jpg, Total Recall Die totale Erinnerung-861-poster.jpg)
+### download(https://image.tmdb.org/t/p/original/rPqCxVXBD89jeWMgJU3MeFA6GDV.jpg, Total Recall Die totale Erinnerung-861-backdrop.jpg)
+---------- ID: 64635
+        Title: Total Recall
+  ReleaseDate: 2012-08-02
+
+### download(https://image.tmdb.org/t/p/original/4zgwx4HySRVjqSlmbrEKetJr5qo.jpg, Total Recall-64635-poster.jpg)
+### download(https://image.tmdb.org/t/p/original/orFQbyZ6g7kPFaJXmgty0M88wJ0.jpg, Total Recall-64635-backdrop.jpg)
 ---------- ID: 408340
         Title: Total Recall
   ReleaseDate:
@@ -123,38 +126,39 @@ OriginalTitle: Total Recall
         Title: Minority Report
   ReleaseDate: 2002-06-20
 
-### download(https://image.tmdb.org/t/p/original/9niGbmFeaR27pu7cPuQQrStkLlt.jpg, Minority Report-180-2002-poster.jpg)
-### download(https://image.tmdb.org/t/p/original/u8BvwuiiQ0uLFuXviKJU0cCHXIW.jpg, Minority Report-180-2002-backdrop.jpg)
+### download(https://image.tmdb.org/t/p/original/9niGbmFeaR27pu7cPuQQrStkLlt.jpg, Minority Report-180-poster.jpg)
+### download(https://image.tmdb.org/t/p/original/u8BvwuiiQ0uLFuXviKJU0cCHXIW.jpg, Minority Report-180-backdrop.jpg)
 ```
 
 now we have:
 
 ```
 $ ls -l
-total 10324
+total 19092
 -rw-r--r-- 1 wwwutz wwwutz    1072 May  8 15:11 LICENSE
--rw-r--r-- 1 wwwutz wwwutz  228686 May 16 14:52 Minority Report-180-2002-backdrop.jpg
--rw-r--r-- 1 wwwutz wwwutz  193067 May 16 14:52 Minority Report-180-2002-poster.jpg
--rw-r--r-- 1 wwwutz wwwutz      62 May 16 14:52 Minority Report-180-2002.URL
--rw-r--r-- 1 wwwutz wwwutz    7260 May 16 14:52 README.md
--rw-r--r-- 1 wwwutz wwwutz  148477 May 16 14:52 Total Recall Die totale Erinnerung-861-1990-backdrop.jpg
--rw-r--r-- 1 wwwutz wwwutz  134386 May 16 14:52 Total Recall Die totale Erinnerung-861-1990-poster.jpg
--rw-r--r-- 1 wwwutz wwwutz      62 May 16 14:52 Total Recall Die totale Erinnerung-861-1990.URL
--rw-r--r-- 1 wwwutz wwwutz      65 May 16 14:52 Total Recall-408340-0000.URL
--rw-r--r-- 1 wwwutz wwwutz  328461 May 16 14:52 Total Recall-64635-2012-backdrop.jpg
--rw-r--r-- 1 wwwutz wwwutz  466321 May 16 14:52 Total Recall-64635-2012-poster.jpg
--rw-r--r-- 1 wwwutz wwwutz      64 May 16 14:52 Total Recall-64635-2012.URL
--rw-r--r-- 1 wwwutz wwwutz   10458 May 16 14:50 main.go
--rwxr-xr-x 1 wwwutz wwwutz 9015305 May 16 14:50 movieinfo
+-rw-r--r-- 1 wwwutz wwwutz      62 May 23 08:54 Minority Report-180-2002.URL
+-rw-r--r-- 1 wwwutz wwwutz  228686 May 23 08:54 Minority Report-180-backdrop.jpg
+-rw-r--r-- 1 wwwutz wwwutz  193067 May 23 08:54 Minority Report-180-poster.jpg
+-rw-r--r-- 1 wwwutz wwwutz    9504 May 17 08:16 README.md
+-rw-r--r-- 1 wwwutz wwwutz      62 May 23 08:54 Total Recall Die totale Erinnerung-861-1990.URL
+-rw-r--r-- 1 wwwutz wwwutz  148477 May 23 08:54 Total Recall Die totale Erinnerung-861-backdrop.jpg
+-rw-r--r-- 1 wwwutz wwwutz  134386 May 23 08:54 Total Recall Die totale Erinnerung-861-poster.jpg
+-rw-r--r-- 1 wwwutz wwwutz      65 May 23 08:54 Total Recall-408340-0000.URL
+-rw-r--r-- 1 wwwutz wwwutz      64 May 23 08:54 Total Recall-64635-2012.URL
+-rw-r--r-- 1 wwwutz wwwutz  328461 May 23 08:54 Total Recall-64635-backdrop.jpg
+-rw-r--r-- 1 wwwutz wwwutz  466321 May 23 08:54 Total Recall-64635-poster.jpg
+-rw-r--r-- 1 wwwutz wwwutz   11315 May 23 08:32 main.go
+-rwxr-xr-x 1 wwwutz wwwutz 9059900 May 23 08:32 movieinfo
+-rwxr-xr-x 1 wwwutz wwwutz 8931328 May 23 08:32 movieinfo.exe
 ```
 
 ### sort out the mess
 
-And now we can start sorting out. We're looking for the Arnie version.
+And now we can start sorting out. We're looking for the Arnie version via the `.URL` files
 1. `Minority Report` ...
 1. `Total Recall-408340-0000.URL` points to ... well whatever
-1. `Total Recall-64635-2012*` looks like the remake
-1. `Total Recall Die totale Erinnerung-861-1990*` Yeah! That's the one. Go Arnie, pull that thing out of your nose
+1. `Total Recall-64635-2012.URL` looks like the remake
+1. `Total Recall Die totale Erinnerung-861-1990.URL` Yeah! That's the one. Go Arnie, pull that thing out of your nose
 
 "Hmmm.. german ? Ah, that's what you mean with 'works for me' 8-)"
 
@@ -181,7 +185,7 @@ download:  false
   ReleaseDate: 2012-08-02
 ```
 
-Which is, as we see, a bad thing. The Arnie version is not the first one to pop up. Anyways, I'm using 4 or 5 for scripts (`--max=5`), in 99% of all cases the movie I was looking for pops up in the first results.
+Which is random. The Arnie version might not be the first one to pop up. Anyways, I'm using 4 or 5 for scripts (`--max=5`), in 99% of all cases the movie I was looking for pops up in the first results.
 
 ### supply tmdb.org ID via options or filename
 
@@ -204,9 +208,12 @@ It'll try to do it's very best to extract the ID from a filename. But why should
 
 Well, it downloads and creates the most interesting `.txt` file only it you either supply the ID or there is only one result fopr your search.
 
-# the interesting part
+# The final result as a .txt file
+
+Add `--download` to finally create `Title-tmdbID.txt` with all movie meta information we need
+
 ```
-$ ./movieinfo -i 861
+$ ./movieinfo -d -i 861
      arg:  
   search:  
       id:  861
