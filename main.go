@@ -238,8 +238,8 @@ func tmdbMovie(mID int, search string, argsyear int) (*tmdb.Movie, error) {
 			//  - create minimal files to choose from
 			// - do not download complete tmdb.Movie
 
-			for _, element := range lookup.Results {
-				fmt.Printf("---------- ID: %d\n", element.ID)
+			for i, element := range lookup.Results {
+				fmt.Printf("--- %d. ID: %d\n",i+1, element.ID)
 				fmt.Printf("        Title: %s\n", element.Title)
 				if element.Title != element.OriginalTitle {
 					fmt.Printf("OriginalTitle: %s\n", element.OriginalTitle)
