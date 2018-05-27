@@ -34,7 +34,7 @@ func downloadFile(URL string, filename string) error {
 	fmt.Printf("### download(%s, %s)\n", URL, filename)
 	if _, err := os.Stat(filename); err == nil {
 		// path/to/whatever exists
-		fmt.Println("### EXISTS: " + filename + " already exists. skipping")
+		fmt.Println("# " + filename + " already exists. skipping")
 		return err
 	}
 	// the path does not exist or some error occurred.
@@ -65,7 +65,7 @@ func downloadFile(URL string, filename string) error {
 func tmdbURLfile(filename string, mID int) error {
 	if _, err := os.Stat(filename); err == nil {
 		// path/to/whatever exists
-		fmt.Println("### EXISTS: " + filename + " already exists. skipping")
+		fmt.Println("# " + filename + " already exists. skipping")
 	} else {
 		file, err := os.Create(filename) // Truncates if file already exists, be careful!
 		if err != nil {
