@@ -84,7 +84,6 @@ func tmdbURLfile(filename string, mID int) error {
 
 func exists(filename string) bool {
 	if _, err := os.Stat(filename); err == nil {
-		fmt.Println("### EXISTS: " + filename + " exists.")
 		return true
 	}
 	return false
@@ -171,7 +170,7 @@ func exiton(err error, msg string) {
 	details := runtime.FuncForPC(pc)
 	d := ""
 	if details != nil {
-		d = " in " + details.Name()+"()"
+		d = " in " + details.Name() + "()"
 	}
 	if ok {
 		r = fmt.Sprintf("// %s failed%s with err=%v\n// %s#%d", msg, d, err, file, no)
@@ -263,7 +262,7 @@ func tmdbMovie(mID int, search string, argsyear int) (*tmdb.Movie, error) {
 					filename := fmt.Sprintf("%s-%d", cleantitle, element.ID)
 
 					url := fmt.Sprintf("[InternetShortcut]\r\nURL=https://www.themoviedb.org/movie/%d\r\n", element.ID)
-					writefile(filename+fmt.Sprintf("-%04d.URL",year), []byte(url))
+					writefile(filename+fmt.Sprintf("-%04d.URL", year), []byte(url))
 
 					if element.PosterPath != "" {
 						downloadFile("https://image.tmdb.org/t/p/original"+element.PosterPath, filename+"-poster.jpg")
@@ -325,7 +324,7 @@ func tmdbMovie(mID int, search string, argsyear int) (*tmdb.Movie, error) {
 			writefile(filename+".txt", []byte(txt))
 
 			url := fmt.Sprintf("[InternetShortcut]\r\nURL=https://www.themoviedb.org/movie/%d\r\n", mID)
-			writefile(filename+fmt.Sprintf("-%04d.URL",year), []byte(url))
+			writefile(filename+fmt.Sprintf("-%04d.URL", year), []byte(url))
 
 			if m.PosterPath != "" {
 				downloadFile("https://image.tmdb.org/t/p/original"+m.PosterPath, filename+"-poster.jpg")
@@ -435,6 +434,10 @@ func main() {
 			Usage:  "tmdb.org API key",
 			EnvVar: "TMDB_API",
 		},
+		cli.StringFlag{
+			Name:  "mvtoext, mv",
+			Usage: "rename files to filename with this extension",
+		},
 	}
 
 	app.Action = func(c *cli.Context) error {
@@ -455,6 +458,7 @@ func main() {
 		download = c.Bool("download")
 		verbose = c.Bool("verbose")
 		TMDB_API = c.String("TMDB_API")
+		mvtoext := c.String("mvtoext")
 		fmt.Println("     arg: ", arg)
 		fmt.Println("  search: ", search)
 		fmt.Println("      id: ", mID)
@@ -462,7 +466,100 @@ func main() {
 		fmt.Println("    year: ", year)
 		fmt.Println("     max: ", maxe)
 		fmt.Println(" verbose: ", verbose)
+		fmt.Println(" mvtoext: ", mvtoext)
 		fmt.Print("\n")
+
+		if mvtoext != "" {
+			var fail = make(map[int]string)
+			var warn = make(map[int]string)
+			var fromto = make(map[string]string)
+			ok := 0
+
+			// error counter. we add up errors before we fail
+			fcnt := 0
+
+			// all files should be named like
+			moveto := ""
+
+			// first loop through args
+			// exists ? find file with supplied extension
+			for i, arg := range c.Args() {
+				fmt.Printf(" arg[%d]: %s\n", i, arg)
+				if exists(arg) {
+					ok += 1
+					// .txt ?
+					if strings.HasSuffix(arg, mvtoext) {
+						if moveto != "" {
+							fail[fcnt] = "found add. file with extension " + mvtoext + "\n"
+							fail[fcnt] += "found " + arg + "\n"
+							fail[fcnt] += "  had " + moveto + mvtoext
+							fcnt += 1
+						} else {
+							moveto = strings.TrimSuffix(arg, mvtoext)
+							continue
+						}
+					}
+					fromto[arg] = ""
+				} else {
+					fcnt += 1
+					fail[fcnt] = arg + " file not found"
+				}
+			}
+			if fcnt != 0 {
+				fmt.Printf("# %d != %d : exit\n", ok, fcnt)
+				for i, f := range fail {
+					fmt.Printf(" fail[%d]: %s\n", i, f)
+				}
+				return nil
+			}
+			// now we have all files
+			// set up dest filename
+			var tofrom = make(map[string]string)
+			for file, _ := range fromto {
+				li := strings.LastIndex(file, ".")
+				if li > 0 {
+					//					name := file[0:li]
+					ext := file[strings.LastIndex(file, "."):len(file)]
+					fromto[file] = moveto + ext
+					if tofrom[moveto+ext] == "" {
+						tofrom[moveto+ext] = file
+					} else {
+						fail[fcnt] = "would double create " + moveto + ext
+						fail[fcnt] += "\n from " + tofrom[moveto+ext]
+						fail[fcnt] += "\n with " + file
+						fcnt += 1
+					}
+					// will we overwrite something existing?
+					if exists(moveto + ext) {
+						fail[fcnt] = "would overwrite " + moveto + ext
+						fail[fcnt] += "\n from " + tofrom[moveto+ext]
+						fcnt += 1
+					}
+				} else {
+					fail[fcnt] = "nothing to do"
+				}
+			}
+			// check if we would run in a dupe
+
+			if fcnt != 0 {
+				fmt.Printf("# %d != %d : exit\n", ok, fcnt)
+				for i, f := range fail {
+					fs := fmt.Sprintf("\nfail[%d] ", i)
+					f = strings.Replace(f, "\n", fs, -1)
+					fmt.Println(fs + f)
+				}
+				return nil
+			}
+			for i, f := range warn {
+				fmt.Printf(" warn[%d]: %s\n", i, f)
+			}
+			for f, t := range fromto {
+				fmt.Printf(" mv %s %s\n", f, t)
+				err := os.Rename(f, t)
+				exiton(err, " mv "+f+" "+t+" failed")
+			}
+			return nil
+		}
 		Movie(mID, search, year)
 
 		return nil
