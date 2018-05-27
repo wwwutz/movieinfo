@@ -490,10 +490,10 @@ func main() {
 					// .txt ?
 					if strings.HasSuffix(arg, mvtoext) {
 						if moveto != "" {
+							fcnt += 1
 							fail[fcnt] = "found add. file with extension " + mvtoext + "\n"
 							fail[fcnt] += "found " + arg + "\n"
 							fail[fcnt] += "  had " + moveto + mvtoext
-							fcnt += 1
 						} else {
 							moveto = strings.TrimSuffix(arg, mvtoext)
 							continue
@@ -504,6 +504,10 @@ func main() {
 					fcnt += 1
 					fail[fcnt] = arg + " file not found"
 				}
+			}
+			if moveto == "" {
+				fcnt += 1
+				fail[fcnt] = " no file with extension " + mvtoext + " found"
 			}
 			if fcnt != 0 {
 				fmt.Printf("# %d != %d : exit\n", ok, fcnt)
@@ -524,19 +528,20 @@ func main() {
 					if tofrom[moveto+ext] == "" {
 						tofrom[moveto+ext] = file
 					} else {
+						fcnt += 1
 						fail[fcnt] = "would double create " + moveto + ext
 						fail[fcnt] += "\n from " + tofrom[moveto+ext]
 						fail[fcnt] += "\n with " + file
-						fcnt += 1
 					}
 					// will we overwrite something existing?
 					if exists(moveto + ext) {
+						fcnt += 1
 						fail[fcnt] = "would overwrite " + moveto + ext
 						fail[fcnt] += "\n from " + tofrom[moveto+ext]
-						fcnt += 1
 					}
 				} else {
-					fail[fcnt] = "nothing to do"
+					fcnt += 1
+					fail[fcnt] = "found no extenstion in " + file
 				}
 			}
 			// check if we would run in a dupe
