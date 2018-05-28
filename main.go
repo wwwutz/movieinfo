@@ -265,7 +265,7 @@ func tmdbMovie(mID int, search string, argsyear int) (*tmdb.Movie, error) {
 					writefile(filename+fmt.Sprintf("-%04d.URL", year), []byte(url))
 
 					if element.PosterPath != "" {
-						downloadFile("https://image.tmdb.org/t/p/original"+element.PosterPath, filename+"-poster.jpg")
+						downloadFile("https://image.tmdb.org/t/p/original"+element.PosterPath, filename+".jpg")
 					}
 					if element.BackdropPath != "" {
 						downloadFile("https://image.tmdb.org/t/p/original"+element.BackdropPath, filename+"-backdrop.jpg")
@@ -327,7 +327,7 @@ func tmdbMovie(mID int, search string, argsyear int) (*tmdb.Movie, error) {
 			writefile(filename+fmt.Sprintf("-%04d.URL", year), []byte(url))
 
 			if m.PosterPath != "" {
-				downloadFile("https://image.tmdb.org/t/p/original"+m.PosterPath, filename+"-poster.jpg")
+				downloadFile("https://image.tmdb.org/t/p/original"+m.PosterPath, filename+".jpg")
 			}
 			if m.BackdropPath != "" {
 				downloadFile("https://image.tmdb.org/t/p/original"+m.BackdropPath, filename+"-backdrop.jpg")
