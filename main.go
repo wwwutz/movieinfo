@@ -477,29 +477,6 @@ func mvtoextension(mvtoext string, filenames []string) error {
 	return nil
 }
 
-func Movie(mID int, search string, year int) (MovieResult, error) {
-
-	tmdbResult, err := tmdbMovie(mID, search, year)
-	//	fmt.Printf("\nresult = %#v\n\n", tmdbResult)
-	if err == nil {
-
-		// Parse release date
-		year := 0000
-		date, parseError := dateparse.ParseAny(tmdbResult.ReleaseDate)
-		if parseError == nil {
-			year = date.Year()
-		}
-
-		return MovieResult{
-			Title:       tmdbResult.Title,
-			ReleaseDate: tmdbResult.ReleaseDate,
-			Year:        year,
-		}, err
-	}
-
-	return MovieResult{Title: "N/A"}, err
-}
-
 func main() {
 	app := cli.NewApp()
 	app.Name = "movieinfo"
@@ -571,7 +548,7 @@ func main() {
 			mvtoextension(c.String("mvtoext"), c.Args())
 			return nil
 		}
-		Movie(mID, search, year)
+		tmdbMovie(mID, search, year)
 
 		return nil
 	}
