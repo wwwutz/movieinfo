@@ -3,6 +3,23 @@ get ridiculous least information from tmdb
 
 The idea is to create a text file with movie meta information and download a poster and backdrop image into your current directory. The created text file has no distractive formatting and can be fed to `grep` or maybe  `find /movies -type f -name '*.txt' -print0 | xargs -0 grep -i schwarzenegger` . Which is a good thing.
 
+```
+$ movieinfo -d "total recall"
+```
+et voila
+
+```
+Minority Report-180-backdrop.jpg
+Minority Report-180.jpg
+Minority Report-180-2002.URL
+Total Recall-408340-0000.URL
+Total Recall-64635-backdrop.jpg
+Total Recall-64635.jpg
+Total Recall-64635-2012.URL
+Total Recall Die totale Erinnerung-861-backdrop.jpg
+Total Recall Die totale Erinnerung-861.jpg
+Total Recall Die totale Erinnerung-861-1990.URL
+```
 # warning
 
 Do **not** take this source as go/golang reference. I'm a `perl` person. This is my first try to do a little bit more with golang. Based on `"golang string to int"` or `"golang write file"` web searches.
