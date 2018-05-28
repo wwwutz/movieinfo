@@ -505,7 +505,7 @@ func main() {
 	app.Name = "movieinfo"
 	app.Usage = "query tmdb.org to download backdrops, cover and more"
 	app.UsageText = "movieinfo [movie]"
-	app.Version = "1.0"
+	app.Version = "0.2"
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
 			Name:  "download, d",
