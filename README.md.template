@@ -1,24 +1,17 @@
 # movieinfo
+
+
 get ridiculous least information from tmdb
 
 The idea is to create a text file with movie meta information and download a poster and backdrop image into your current directory. The created text file has no distractive formatting and can be fed to `grep` or maybe  `find /movies -type f -name '*.txt' -print0 | xargs -0 grep -i schwarzenegger` . Which is a good thing.
 
+{{ "./movieinfo -d \"total recall\" >/dev/null" | run }}
 ```
 $ movieinfo -d "total recall"
 ```
 et voila
-
 ```
-Minority Report-180-backdrop.jpg
-Minority Report-180.jpg
-Minority Report-180-2002.URL
-Total Recall-408340-0000.URL
-Total Recall-64635-backdrop.jpg
-Total Recall-64635.jpg
-Total Recall-64635-2012.URL
-Total Recall Die totale Erinnerung-861-backdrop.jpg
-Total Recall Die totale Erinnerung-861.jpg
-Total Recall Die totale Erinnerung-861-1990.URL
+{{ "ls -C1 M* T*" | run }}
 ```
 # warning
 
@@ -71,30 +64,7 @@ Set up you API key. Either save it as environment variable `TMDB_API` or supply 
 
 ```
 $ ./movieinfo "total recall"
-     arg:  total recall
-  search:  total recall
-      id:  0
-download:  false
-    year:  0
-     max:  0
- verbose:  false
-
----------- ID: 64635
-        Title: Total Recall
-  ReleaseDate: 2012-08-02
-
----------- ID: 861
-        Title: Total Recall - Die totale Erinnerung
-OriginalTitle: Total Recall
-  ReleaseDate: 1990-06-01
-
----------- ID: 408340
-        Title: Total Recall
-  ReleaseDate:
-
----------- ID: 180
-        Title: Minority Report
-  ReleaseDate: 2002-06-20
+{{ "./movieinfo \"total recall\"" | run }}
 ```
 
 ### download images for "Total Recall"
@@ -104,6 +74,7 @@ Let's just download all available poster and backdrop images and create a `.URL`
 before:
 ```
 $ ls -l
+{{ "ls -l" | run }}
 total 17600
 -rw-r--r-- 1 wwwutz wwwutz    1072 May  8 15:11 LICENSE
 -rw-r--r-- 1 wwwutz wwwutz    9504 May 17 08:16 README.md

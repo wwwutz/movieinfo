@@ -1,24 +1,27 @@
 # movieinfo
+
+
 get ridiculous least information from tmdb
 
 The idea is to create a text file with movie meta information and download a poster and backdrop image into your current directory. The created text file has no distractive formatting and can be fed to `grep` or maybe  `find /movies -type f -name '*.txt' -print0 | xargs -0 grep -i schwarzenegger` . Which is a good thing.
+
 
 ```
 $ movieinfo -d "total recall"
 ```
 et voila
-
 ```
+Minority Report-180-2002.URL
 Minority Report-180-backdrop.jpg
 Minority Report-180.jpg
-Minority Report-180-2002.URL
-Total Recall-408340-0000.URL
-Total Recall-64635-backdrop.jpg
-Total Recall-64635.jpg
-Total Recall-64635-2012.URL
+Total Recall Die totale Erinnerung-861-1990.URL
 Total Recall Die totale Erinnerung-861-backdrop.jpg
 Total Recall Die totale Erinnerung-861.jpg
-Total Recall Die totale Erinnerung-861-1990.URL
+Total Recall-408340-0000.URL
+Total Recall-64635-2012.URL
+Total Recall-64635-backdrop.jpg
+Total Recall-64635.jpg
+
 ```
 # warning
 
@@ -78,23 +81,26 @@ download:  false
     year:  0
      max:  0
  verbose:  false
+ mvtoext:  
 
----------- ID: 64635
+--- 1. ID: 64635
         Title: Total Recall
   ReleaseDate: 2012-08-02
 
----------- ID: 861
+--- 2. ID: 861
         Title: Total Recall - Die totale Erinnerung
 OriginalTitle: Total Recall
   ReleaseDate: 1990-06-01
 
----------- ID: 408340
+--- 3. ID: 408340
         Title: Total Recall
-  ReleaseDate:
+  ReleaseDate: 
 
----------- ID: 180
+--- 4. ID: 180
         Title: Minority Report
   ReleaseDate: 2002-06-20
+
+
 ```
 
 ### download images for "Total Recall"
@@ -104,6 +110,25 @@ Let's just download all available poster and backdrop images and create a `.URL`
 before:
 ```
 $ ls -l
+total 19088
+-rw-r--r-- 1 wwwutz wwwutz    1072 May  8 15:11 LICENSE
+-rw-r--r-- 1 wwwutz wwwutz      62 May 29 16:49 Minority Report-180-2002.URL
+-rw-r--r-- 1 wwwutz wwwutz  220227 May 29 16:49 Minority Report-180-backdrop.jpg
+-rw-r--r-- 1 wwwutz wwwutz  193067 May 29 16:49 Minority Report-180.jpg
+-rw-r--r-- 1 wwwutz wwwutz     935 May 29 16:41 README.go
+-rw-r--r-- 1 wwwutz wwwutz    3230 May 29 16:49 README.md
+-rw-r--r-- 1 wwwutz wwwutz    9752 May 29 16:48 README.md.template
+-rw-r--r-- 1 wwwutz wwwutz      62 May 29 16:49 Total Recall Die totale Erinnerung-861-1990.URL
+-rw-r--r-- 1 wwwutz wwwutz  148477 May 29 16:49 Total Recall Die totale Erinnerung-861-backdrop.jpg
+-rw-r--r-- 1 wwwutz wwwutz  134386 May 29 16:49 Total Recall Die totale Erinnerung-861.jpg
+-rw-r--r-- 1 wwwutz wwwutz      65 May 29 16:49 Total Recall-408340-0000.URL
+-rw-r--r-- 1 wwwutz wwwutz      64 May 29 16:49 Total Recall-64635-2012.URL
+-rw-r--r-- 1 wwwutz wwwutz  328461 May 29 16:49 Total Recall-64635-backdrop.jpg
+-rw-r--r-- 1 wwwutz wwwutz  466321 May 29 16:49 Total Recall-64635.jpg
+-rw-r--r-- 1 wwwutz wwwutz   13461 May 29 15:17 main.go
+-rwxr-xr-x 1 wwwutz wwwutz 9035994 May 29 16:31 movieinfo
+-rwxr-xr-x 1 wwwutz wwwutz 8945664 May 29 08:50 movieinfo.exe
+
 total 17600
 -rw-r--r-- 1 wwwutz wwwutz    1072 May  8 15:11 LICENSE
 -rw-r--r-- 1 wwwutz wwwutz    9504 May 17 08:16 README.md

@@ -19,6 +19,8 @@ import (
 	"github.com/urfave/cli"
 )
 
+//go:generate go run README.go
+
 type MovieResult struct {
 	Title       string
 	ReleaseDate string
@@ -288,7 +290,7 @@ func tmdbMovie(mID int, search string, argsyear int) (*tmdb.Movie, error) {
 		var m *tmdb.Movie
 		options["append_to_response"] = "credits"
 		m, err := db.GetMovieInfo(mID, options)
-		exiton(err, fmt.Sprintf("GetMovieInfo(%d,%#v)",mID,options))
+		exiton(err, fmt.Sprintf("GetMovieInfo(%d,%#v)", mID, options))
 
 		if verbose {
 			dumptmdbMovie(m)
