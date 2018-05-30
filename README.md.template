@@ -1,17 +1,15 @@
 # movieinfo
-
-
 get ridiculous least information from tmdb
 
 The idea is to create a text file with movie meta information and download a poster and backdrop image into your current directory. The created text file has no distractive formatting and can be fed to `grep` or maybe  `find /movies -type f -name '*.txt' -print0 | xargs -0 grep -i schwarzenegger` . Which is a good thing.
 
-{{ "./movieinfo -d \"total recall\" >/dev/null" | run }}
+{{ "movieinfo -d \"total recall\" >/dev/null" | runclean }}
 ```
 $ movieinfo -d "total recall"
 ```
 et voila
 ```
-{{ "ls -C1 M* T*" | run }}
+{{ "ls -C1 *" | run }}
 ```
 # warning
 
@@ -55,16 +53,19 @@ You have been warned.
 * `cp movieinfo` somewhere in your `$PATH` if you prefer
 * `GOOS=wiondows GOARCH=amd64 go build` to create a windows `.exe`
 
-## usage examples
-
+# usage
 Set up you API key. Either save it as environment variable `TMDB_API` or supply it on the commandline.
+
+```
+{{ "movieinfo --help" | run }}
+```
 
 ### get info for "Total Recall"
  We'll find four versions of "Total Recall". The third ID 180 is obviously wrong.
 
 ```
-$ ./movieinfo "total recall"
-{{ "./movieinfo \"total recall\"" | run }}
+$ movieinfo "total recall"
+{{ "movieinfo \"total recall\"" | run }}
 ```
 
 ### download images for "Total Recall"
@@ -74,81 +75,31 @@ Let's just download all available poster and backdrop images and create a `.URL`
 before:
 ```
 $ ls -l
-{{ "ls -l" | run }}
-total 17600
--rw-r--r-- 1 wwwutz wwwutz    1072 May  8 15:11 LICENSE
--rw-r--r-- 1 wwwutz wwwutz    9504 May 17 08:16 README.md
--rw-r--r-- 1 wwwutz wwwutz   11315 May 23 08:32 main.go
--rwxr-xr-x 1 wwwutz wwwutz 9059900 May 23 08:32 movieinfo
--rwxr-xr-x 1 wwwutz wwwutz 8931328 May 23 08:32 movieinfo.exe
+{{ "ls -l" | runclean }}
 ```
 calling `movieinfo` command with `--download` option:
 ```
-$ ./movieinfo -d "total recall"
-     arg:  total recall
-  search:  total recall
-      id:  0
-download:  true
-    year:  0
-     max:  0
- verbose:  false
+$ movieinfo -d "total recall"
 
----------- ID: 861
-        Title: Total Recall - Die totale Erinnerung
-OriginalTitle: Total Recall
-  ReleaseDate: 1990-06-01
-
-### download(https://image.tmdb.org/t/p/original/unjJqoBkzdUIA5Bi1rDdVHo0949.jpg, Total Recall Die totale Erinnerung-861-poster.jpg)
-### download(https://image.tmdb.org/t/p/original/rPqCxVXBD89jeWMgJU3MeFA6GDV.jpg, Total Recall Die totale Erinnerung-861-backdrop.jpg)
----------- ID: 64635
-        Title: Total Recall
-  ReleaseDate: 2012-08-02
-
-### download(https://image.tmdb.org/t/p/original/4zgwx4HySRVjqSlmbrEKetJr5qo.jpg, Total Recall-64635-poster.jpg)
-### download(https://image.tmdb.org/t/p/original/orFQbyZ6g7kPFaJXmgty0M88wJ0.jpg, Total Recall-64635-backdrop.jpg)
----------- ID: 408340
-        Title: Total Recall
-  ReleaseDate:
-
----------- ID: 180
-        Title: Minority Report
-  ReleaseDate: 2002-06-20
-
-### download(https://image.tmdb.org/t/p/original/9niGbmFeaR27pu7cPuQQrStkLlt.jpg, Minority Report-180-poster.jpg)
-### download(https://image.tmdb.org/t/p/original/u8BvwuiiQ0uLFuXviKJU0cCHXIW.jpg, Minority Report-180-backdrop.jpg)
+{{ "movieinfo -d \"total recall\"" | run }}
 ```
 
 now we have:
 
 ```
 $ ls -l
-total 19092
--rw-r--r-- 1 wwwutz wwwutz    1072 May  8 15:11 LICENSE
--rw-r--r-- 1 wwwutz wwwutz      62 May 23 08:54 Minority Report-180-2002.URL
--rw-r--r-- 1 wwwutz wwwutz  228686 May 23 08:54 Minority Report-180-backdrop.jpg
--rw-r--r-- 1 wwwutz wwwutz  193067 May 23 08:54 Minority Report-180-poster.jpg
--rw-r--r-- 1 wwwutz wwwutz    9504 May 17 08:16 README.md
--rw-r--r-- 1 wwwutz wwwutz      62 May 23 08:54 Total Recall Die totale Erinnerung-861-1990.URL
--rw-r--r-- 1 wwwutz wwwutz  148477 May 23 08:54 Total Recall Die totale Erinnerung-861-backdrop.jpg
--rw-r--r-- 1 wwwutz wwwutz  134386 May 23 08:54 Total Recall Die totale Erinnerung-861-poster.jpg
--rw-r--r-- 1 wwwutz wwwutz      65 May 23 08:54 Total Recall-408340-0000.URL
--rw-r--r-- 1 wwwutz wwwutz      64 May 23 08:54 Total Recall-64635-2012.URL
--rw-r--r-- 1 wwwutz wwwutz  328461 May 23 08:54 Total Recall-64635-backdrop.jpg
--rw-r--r-- 1 wwwutz wwwutz  466321 May 23 08:54 Total Recall-64635-poster.jpg
--rw-r--r-- 1 wwwutz wwwutz   11315 May 23 08:32 main.go
--rwxr-xr-x 1 wwwutz wwwutz 9059900 May 23 08:32 movieinfo
--rwxr-xr-x 1 wwwutz wwwutz 8931328 May 23 08:32 movieinfo.exe
+{{ "ls -l" | run }}
 ```
 
 ### sort out the mess
 
 And now we can start sorting out. We're looking for the Arnie version via the `.URL` files
-1. `Minority Report` ...
-1. `Total Recall-408340-0000.URL` points to ... well whatever
-1. `Total Recall-64635-2012.URL` looks like the remake
-1. `Total Recall Die totale Erinnerung-861-1990.URL` Yeah! That's the one. Go Arnie, pull that thing out of your nose
+1. `{{ "echo *-180-*.URL" | run }}` ...
+1. `{{ "echo *-408340-*.URL" | run }}` points to ... well whatever
+1. `{{ "echo *-64635-*.URL" | run }}` looks like the remake
+1. `{{ "echo *-861-*.URL" | run }}` Yeah! That's the one. Go Arnie, pull that thing out of your nose
 
-"Hmmm.. german ? Ah, that's what you mean with 'works for me' 8-)"
+"Hmmm.. german ? Ah, that's what you meant with 'works for me' 8-)"
 
 Let's get rid of the others (using filename completion via the tabulator key `[TAB]` or use a decent file manager.
 
@@ -156,111 +107,75 @@ Oh and try not to delete your movie files ;-)
 
 ### restrict number of results
 
-use the `--max=n` option. This limits the output to `n` results. The default is zero (0) which means unlimited. Let's try one (1).
+use the `--max=n` option. This limits the output to `n` results. The default is zero (`0`) which means unlimited. Let's try one (`1`).
 
 ```
-$ ./movieinfo -m 1 "total recall"
-     arg:  total recall
-  search:  total recall
-      id:  0
-download:  false
-    year:  0
-     max:  1
- verbose:  false
-
----------- ID: 64635
-        Title: Total Recall
-  ReleaseDate: 2012-08-02
+$ movieinfo -m 1 "total recall"
+{{ "movieinfo -m 1 \"total recall\"" | run }}
 ```
 
-Which is random. The Arnie version might not be the first one to pop up. Anyways, I'm using 4 or 5 for scripts (`--max=5`), in 99% of all cases the movie I was looking for pops up in the first results.
+If there would be more than one (`1`) hit, the result is random. The Arnie version might not be the first one to pop up. I'm using 4 or 5 for scripts (`--max=5`), in 99% of all cases the movie I was looking for pops up in the first results.
 
-### supply tmdb.org ID via options or filename
+### supply tmdb.org ID via options
 
-You know the tmdb.org ID of your movie ?
+Once you have the tmdb.org ID of your movie you can restict the output and even get overview and cast in a `.txt` file
 
-`-i <tmdb.org ID>` has highest priority and restricts output to this ID
+The command line option `-i <tmdb.org ID>` has highest priority and restricts output to this ID
 ```
-$ ./movieinfo -i 64635
-```
-overrides `-ID-YYYY.URL` or `' - YYYY'` filename parsing
-
-
-supplying a complete movie-info generated `.URL` file:
-
-```
-$ ./movieinfo "total recall-64635-2012.URL"
+$ movieinfo -d -i 64635
+{{ "movieinfo -d -i 64635 \"total recall\"|fold -s" | runclean }}
+$ ls -l
+{{ "ls -l" | run }}
 ```
 
-It'll try to do it's very best to extract the ID from a filename. But why should it ?
+### supply tmdb.org ID via filename.URL
 
-Well, it downloads and creates the most interesting `.txt` file only it you either supply the ID or there is only one result fopr your search.
+Supplying a complete `movieinfo` generated `.URL` file will parse the filename for a potiential ID.
+
+```
+$ movieinfo "total recall-64635-2012.URL"
+{{ "movieinfo \"total recall-64635-2012.URL\">.x;head -20 .x|cut -c-80" | runclean }}```
+It'll try to do it's very best to extract the ID from a filename.
 
 # The final result as a .txt file
 
-Add `--download` to finally create `Title-tmdbID.txt` with all movie meta information we need
+Add `--download` to finally create a `.txt` file with all movie meta information we ( well ok, 'I' ) need
 
 ```
-$ ./movieinfo -d -i 861
-     arg:
-  search:
-      id:  861
-download:  false
-    year:  0
-     max:  0
- verbose:  false
-
-### START .txt
-tmdbID:   861
-Title:    Total Recall - Die totale Erinnerung
-Tagline:  Mach dich bereit für die Reise deines Lebens.
-OTitle:   Total Recall
-Release:  1990-06-01
-Runtime:  1 h 53 min
-Overview: In ferner Zukunft führt Bauarbeiter Douglas Quaid ein zufriedenes Leben mit seiner attraktiven Ehefrau Lori. Einzig seine immer wiederkehrenden Albträume vom Planeten Mars quälen ihn und so entschließt er sich zu einer virtuellen Reise auf den Roten Planeten. Doch bei der Erinnerungsimplantation geht etwas schief und Quaids Leben ändert sich radikal. Ist er wirklich derjenige, der er zu sein glaubt? Quaid begibt er sich auf die gefährliche Suche nach seiner wahren Identität.
-
--  1. Arnold Schwarzenegger: Douglas Quaid/Hauser
--  2. Sharon Stone: Lori
--  3. Rachel Ticotin: Melina
--  4. Ronny Cox: Vilos Cohaagen
--  5. Michael Ironside: Richter
--  6. Marshall Bell: George/Kuato
--  7. Roy Brocksmith: Dr. Edgemar
--  8. Ray Baker: Bob McClane
--  9. Rosemary Dunsmore: Dr. Lull
-- 10. Dean Norris: Tony
-- 11. Debbie Lee Carrington: Thumbelina
-- 12. Lycia Naff: Mary
-- 13. Robert Costanzo: Harry
-- 14. Marc Alaimo: Everett
-- 15. Michael Gregory: Rebel Lieutenant
-- 16. Mickey Jones: Burly Miner
-- 17. Robert Picardo: Voice of Johnnycab (voice)
-- 18. Michael Champion: Helm
-- 19. Mel Johnson Jr.: Benny
-- 20. David Knell: Ernie
-- 21. Alexia Robinson: Tiffany
-
-/  1. 52fe4283c3a36847f8024e9b Arnold Schwarzenegger
-/  2. 52fe4283c3a36847f8024e9f Sharon Stone
-/  3. 52fe4283c3a36847f8024ea3 Rachel Ticotin
-/  4. 52fe4283c3a36847f8024ea7 Ronny Cox
-/  5. 52fe4283c3a36847f8024eab Michael Ironside
-/  6. 52fe4283c3a36847f8024eaf Marshall Bell
-/  7. 52fe4283c3a36847f8024ebb Roy Brocksmith
-/  8. 52fe4283c3a36847f8024ebf Ray Baker
-/  9. 567b9b1f9251417de3001e50 Rosemary Dunsmore
-/ 10. 567b9b50c3a3684bcc001f93 Dean Norris
-/ 11. 567b9bab9251417ddf001fb7 Debbie Lee Carrington
-/ 12. 567b9bde9251417de5001e77 Lycia Naff
-/ 13. 567b9c05c3a3684be3001e5f Robert Costanzo
-/ 14. 567b9c3ec3a3684bd3002322 Marc Alaimo
-/ 15. 567b9c67c3a3684bcc001fcb Michael Gregory
-/ 16. 567b9c9b9251417de9001f6f Mickey Jones
-/ 17. 567b9cce9251417dda001e8d Robert Picardo
-/ 18. 52fe4283c3a36847f8024eb7 Michael Champion
-/ 19. 52fe4283c3a36847f8024eb3 Mel Johnson Jr.
-/ 20. 578ce7fcc3a3682bb2011939 David Knell
-/ 21. 578ce80ac3a3685b4400a435 Alexia Robinson
-###  END  .txt
+$ movieinfo -d -i 861
+{{ "movieinfo -d -i 861|fold -s" | runclean }}
+$ ls -l
+{{ "ls -l" | run }}
 ```
+
+## unrelated feature: renaming files
+
+`movieinfo --mvtoext` allows you to bulk rename files to the filename with the supplied extension.
+
+Given the following files:
+```
+{{ "touch ugly_m0VieNam3.{avi,iso,URL};touch 3v3n_uglier.meta;touch Nice-Name.txt;" | runclean }}
+{{ "ls -C1" | run }}
+```
+Now let them all be called `Nice-Name.*`
+
+```
+$ movieinfo --mvtoext .txt {{"echo *"|run}}
+{{"movieinfo --mvtoext .txt *" | run}}
+$ ls -C1
+{{ "ls -C1" | run }}
+```
+Don't fall for it: It only uses the filenames you supply in the commandline:
+```
+{{ "touch ugly_m0VieNam3.{avi,iso,URL};touch 3v3n_uglier.meta;touch Nice-Name.txt;" | runclean }}
+$ movieinfo --mvtoext .txt *.{avi,iso}
+{{"movieinfo --mvtoext .txt *.{avi,iso}" | run}}
+```
+Renaming one file:
+```
+$ movieinfo --mvtoext .txt ugly_m0VieNam3.avi Nice-Name.txt
+{{"movieinfo --mvtoext .txt ugly_m0VieNam3.avi Nice-Name.txt" | run}}
+$ ls -C1
+{{ "ls -C1" | run }}
+```
+Remember: It does *not* search in your folder. You must not supply more or less than one filename with the supplied extension. Captain Obvious.
