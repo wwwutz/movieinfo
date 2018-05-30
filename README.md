@@ -3,22 +3,23 @@ get ridiculous least information from tmdb
 
 The idea is to create a text file with movie meta information and download a poster and backdrop image into your current directory. The created text file has no distractive formatting and can be fed to `grep` or maybe  `find /movies -type f -name '*.txt' -print0 | xargs -0 grep -i schwarzenegger` . Which is a good thing.
 
+
 ```
 $ movieinfo -d "total recall"
 ```
 et voila
-
 ```
+Minority Report-180-2002.URL
 Minority Report-180-backdrop.jpg
 Minority Report-180.jpg
-Minority Report-180-2002.URL
-Total Recall-408340-0000.URL
-Total Recall-64635-backdrop.jpg
-Total Recall-64635.jpg
-Total Recall-64635-2012.URL
+Total Recall Die totale Erinnerung-861-1990.URL
 Total Recall Die totale Erinnerung-861-backdrop.jpg
 Total Recall Die totale Erinnerung-861.jpg
-Total Recall Die totale Erinnerung-861-1990.URL
+Total Recall-408340-0000.URL
+Total Recall-64635-2012.URL
+Total Recall-64635-backdrop.jpg
+Total Recall-64635.jpg
+
 ```
 # warning
 
@@ -62,39 +63,60 @@ You have been warned.
 * `cp movieinfo` somewhere in your `$PATH` if you prefer
 * `GOOS=wiondows GOARCH=amd64 go build` to create a windows `.exe`
 
-## usage examples
-
+# usage
 Set up you API key. Either save it as environment variable `TMDB_API` or supply it on the commandline.
+
+```
+NAME:
+   movieinfo - query tmdb.org to download backdrops, cover and more
+
+USAGE:
+   movieinfo [movie]
+
+VERSION:
+   0.2
+
+COMMANDS:
+     help, h  Shows a list of commands or help for one command
+
+GLOBAL OPTIONS:
+   --download, -d               download images and metadata
+   --verbose, --vv              whatever
+   --year value, -y value       year (default: 0)
+   --max value, -m value        max. entries, 0 unlimited (default: 0)
+   --id value, -i value         tmdb movie ID (default: 0)
+   --TMDB_API value             tmdb.org API key [$TMDB_API]
+   --mvtoext value, --mv value  rename files to filename with this extension
+   --help, -h                   show help
+   --version, -v                print the version
+
+```
 
 ### get info for "Total Recall"
  We'll find four versions of "Total Recall". The third ID 180 is obviously wrong.
 
 ```
-$ ./movieinfo "total recall"
-     arg:  total recall
-  search:  total recall
-      id:  0
-download:  false
-    year:  0
-     max:  0
- verbose:  false
-
----------- ID: 64635
+$ movieinfo "total recall"
+ arg[0]: total recall
+ search: total recall
+/*  1. ID: 64635 */
         Title: Total Recall
   ReleaseDate: 2012-08-02
 
----------- ID: 861
+/*  2. ID: 861   */
         Title: Total Recall - Die totale Erinnerung
 OriginalTitle: Total Recall
   ReleaseDate: 1990-06-01
 
----------- ID: 408340
+/*  3. ID: 408340 */
         Title: Total Recall
-  ReleaseDate:
+  ReleaseDate: 
 
----------- ID: 180
+/*  4. ID: 180   */
         Title: Minority Report
   ReleaseDate: 2002-06-20
+
+
 ```
 
 ### download images for "Total Recall"
@@ -104,80 +126,78 @@ Let's just download all available poster and backdrop images and create a `.URL`
 before:
 ```
 $ ls -l
-total 17600
--rw-r--r-- 1 wwwutz wwwutz    1072 May  8 15:11 LICENSE
--rw-r--r-- 1 wwwutz wwwutz    9504 May 17 08:16 README.md
--rw-r--r-- 1 wwwutz wwwutz   11315 May 23 08:32 main.go
--rwxr-xr-x 1 wwwutz wwwutz 9059900 May 23 08:32 movieinfo
--rwxr-xr-x 1 wwwutz wwwutz 8931328 May 23 08:32 movieinfo.exe
+total 0
+
 ```
 calling `movieinfo` command with `--download` option:
 ```
-$ ./movieinfo -d "total recall"
-     arg:  total recall
-  search:  total recall
-      id:  0
-download:  true
-    year:  0
-     max:  0
- verbose:  false
+$ movieinfo -d "total recall"
 
----------- ID: 861
+ arg[0]: total recall
+ search: total recall
+/*  1. ID: 64635 */
+        Title: Total Recall
+  ReleaseDate: 2012-08-02
+
+ URL: https://image.tmdb.org/t/p/original/4zgwx4HySRVjqSlmbrEKetJr5qo.jpg
+file: Total Recall-64635.jpg
+ URL: https://image.tmdb.org/t/p/original/orFQbyZ6g7kPFaJXmgty0M88wJ0.jpg
+file: Total Recall-64635-backdrop.jpg
+/*  2. ID: 861   */
         Title: Total Recall - Die totale Erinnerung
 OriginalTitle: Total Recall
   ReleaseDate: 1990-06-01
 
-### download(https://image.tmdb.org/t/p/original/unjJqoBkzdUIA5Bi1rDdVHo0949.jpg, Total Recall Die totale Erinnerung-861-poster.jpg)
-### download(https://image.tmdb.org/t/p/original/rPqCxVXBD89jeWMgJU3MeFA6GDV.jpg, Total Recall Die totale Erinnerung-861-backdrop.jpg)
----------- ID: 64635
+ URL: https://image.tmdb.org/t/p/original/unjJqoBkzdUIA5Bi1rDdVHo0949.jpg
+file: Total Recall Die totale Erinnerung-861.jpg
+ URL: https://image.tmdb.org/t/p/original/rPqCxVXBD89jeWMgJU3MeFA6GDV.jpg
+file: Total Recall Die totale Erinnerung-861-backdrop.jpg
+/*  3. ID: 408340 */
         Title: Total Recall
-  ReleaseDate: 2012-08-02
+  ReleaseDate: 
 
-### download(https://image.tmdb.org/t/p/original/4zgwx4HySRVjqSlmbrEKetJr5qo.jpg, Total Recall-64635-poster.jpg)
-### download(https://image.tmdb.org/t/p/original/orFQbyZ6g7kPFaJXmgty0M88wJ0.jpg, Total Recall-64635-backdrop.jpg)
----------- ID: 408340
-        Title: Total Recall
-  ReleaseDate:
-
----------- ID: 180
+/*  4. ID: 180   */
         Title: Minority Report
   ReleaseDate: 2002-06-20
 
-### download(https://image.tmdb.org/t/p/original/9niGbmFeaR27pu7cPuQQrStkLlt.jpg, Minority Report-180-poster.jpg)
-### download(https://image.tmdb.org/t/p/original/u8BvwuiiQ0uLFuXviKJU0cCHXIW.jpg, Minority Report-180-backdrop.jpg)
+ URL: https://image.tmdb.org/t/p/original/9niGbmFeaR27pu7cPuQQrStkLlt.jpg
+file: Minority Report-180.jpg
+ URL: https://image.tmdb.org/t/p/original/jP9f3PAm3gWotvrkCKsJEyVAyiK.jpg
+file: Minority Report-180-backdrop.jpg
+
 ```
 
 now we have:
 
 ```
 $ ls -l
-total 19092
--rw-r--r-- 1 wwwutz wwwutz    1072 May  8 15:11 LICENSE
--rw-r--r-- 1 wwwutz wwwutz      62 May 23 08:54 Minority Report-180-2002.URL
--rw-r--r-- 1 wwwutz wwwutz  228686 May 23 08:54 Minority Report-180-backdrop.jpg
--rw-r--r-- 1 wwwutz wwwutz  193067 May 23 08:54 Minority Report-180-poster.jpg
--rw-r--r-- 1 wwwutz wwwutz    9504 May 17 08:16 README.md
--rw-r--r-- 1 wwwutz wwwutz      62 May 23 08:54 Total Recall Die totale Erinnerung-861-1990.URL
--rw-r--r-- 1 wwwutz wwwutz  148477 May 23 08:54 Total Recall Die totale Erinnerung-861-backdrop.jpg
--rw-r--r-- 1 wwwutz wwwutz  134386 May 23 08:54 Total Recall Die totale Erinnerung-861-poster.jpg
--rw-r--r-- 1 wwwutz wwwutz      65 May 23 08:54 Total Recall-408340-0000.URL
--rw-r--r-- 1 wwwutz wwwutz      64 May 23 08:54 Total Recall-64635-2012.URL
--rw-r--r-- 1 wwwutz wwwutz  328461 May 23 08:54 Total Recall-64635-backdrop.jpg
--rw-r--r-- 1 wwwutz wwwutz  466321 May 23 08:54 Total Recall-64635-poster.jpg
--rw-r--r-- 1 wwwutz wwwutz   11315 May 23 08:32 main.go
--rwxr-xr-x 1 wwwutz wwwutz 9059900 May 23 08:32 movieinfo
--rwxr-xr-x 1 wwwutz wwwutz 8931328 May 23 08:32 movieinfo.exe
+total 1484
+-rw-r--r-- 1 wwwutz wwwutz     62 May 30 15:06 Minority Report-180-2002.URL
+-rw-r--r-- 1 wwwutz wwwutz 220227 May 30 15:06 Minority Report-180-backdrop.jpg
+-rw-r--r-- 1 wwwutz wwwutz 193067 May 30 15:06 Minority Report-180.jpg
+-rw-r--r-- 1 wwwutz wwwutz     62 May 30 15:06 Total Recall Die totale Erinnerung-861-1990.URL
+-rw-r--r-- 1 wwwutz wwwutz 148477 May 30 15:06 Total Recall Die totale Erinnerung-861-backdrop.jpg
+-rw-r--r-- 1 wwwutz wwwutz 134386 May 30 15:06 Total Recall Die totale Erinnerung-861.jpg
+-rw-r--r-- 1 wwwutz wwwutz     65 May 30 15:06 Total Recall-408340-0000.URL
+-rw-r--r-- 1 wwwutz wwwutz     64 May 30 15:06 Total Recall-64635-2012.URL
+-rw-r--r-- 1 wwwutz wwwutz 328461 May 30 15:06 Total Recall-64635-backdrop.jpg
+-rw-r--r-- 1 wwwutz wwwutz 466321 May 30 15:06 Total Recall-64635.jpg
+
 ```
 
 ### sort out the mess
 
 And now we can start sorting out. We're looking for the Arnie version via the `.URL` files
-1. `Minority Report` ...
-1. `Total Recall-408340-0000.URL` points to ... well whatever
-1. `Total Recall-64635-2012.URL` looks like the remake
-1. `Total Recall Die totale Erinnerung-861-1990.URL` Yeah! That's the one. Go Arnie, pull that thing out of your nose
+1. `Minority Report-180-2002.URL
+` ...
+1. `Total Recall-408340-0000.URL
+` points to ... well whatever
+1. `Total Recall-64635-2012.URL
+` looks like the remake
+1. `Total Recall Die totale Erinnerung-861-1990.URL
+` Yeah! That's the one. Go Arnie, pull that thing out of your nose
 
-"Hmmm.. german ? Ah, that's what you mean with 'works for me' 8-)"
+"Hmmm.. german ? Ah, that's what you meant with 'works for me' 8-)"
 
 Let's get rid of the others (using filename completion via the tabulator key `[TAB]` or use a decent file manager.
 
@@ -185,60 +205,155 @@ Oh and try not to delete your movie files ;-)
 
 ### restrict number of results
 
-use the `--max=n` option. This limits the output to `n` results. The default is zero (0) which means unlimited. Let's try one (1).
+use the `--max=n` option. This limits the output to `n` results. The default is zero (`0`) which means unlimited. Let's try one (`1`).
 
 ```
-$ ./movieinfo -m 1 "total recall"
-     arg:  total recall
-  search:  total recall
-      id:  0
-download:  false
-    year:  0
-     max:  1
- verbose:  false
-
----------- ID: 64635
+$ movieinfo -m 1 "total recall"
+ arg[0]: total recall
+ search: total recall
+/*  1. ID: 64635 */
         Title: Total Recall
   ReleaseDate: 2012-08-02
+
+
 ```
 
-Which is random. The Arnie version might not be the first one to pop up. Anyways, I'm using 4 or 5 for scripts (`--max=5`), in 99% of all cases the movie I was looking for pops up in the first results.
+If there would be more than one (`1`) hit, the result is random. The Arnie version might not be the first one to pop up. I'm using 4 or 5 for scripts (`--max=5`), in 99% of all cases the movie I was looking for pops up in the first results.
 
-### supply tmdb.org ID via options or filename
+### supply tmdb.org ID via options
 
-You know the tmdb.org ID of your movie ?
+Once you have the tmdb.org ID of your movie you can restict the output and even get overview and cast in a `.txt` file
 
-`-i <tmdb.org ID>` has highest priority and restricts output to this ID
+The command line option `-i <tmdb.org ID>` has highest priority and restricts output to this ID
 ```
-$ ./movieinfo -i 64635
+$ movieinfo -d -i 64635
+ arg[0]: total recall
+ search: total recall
+### START .txt
+tmdbID:   64635
+Title:    Total Recall
+Tagline:  Was ist Wirklichkeit?
+Release:  2012-08-02
+Runtime:  1 h 58 min
+Overview: Herzlich Willkommen bei Rekall, der Firma, die ihre Träume dank 
+ihres Total Recall Verfahrens in reale Erinnerungen verwandeln kann. Für den 
+Fabrikarbeiter Douglas Quaid klingt der Urlaub, den man nur in seiner Phantasie 
+macht, nach der perfekten Lösung, seinem frustrierenden Leben zu entgehen. 
+Obwohl er eine wundervolle Frau hat, die er liebt, könnten die Erinnerungen an 
+ein Leben als Super-Agent genau das sein, was Douglas gerade braucht. Bei der 
+Gedankenbefüllung geht jedoch etwas schief und Quaid wird plötzlich zu einem 
+gejagten Mann. Auf der Flucht vor der Polizei verbündet sich Quaid mit einer 
+Rebellenkämpferin. Zusammen wollen sie den Anführer jener 
+Untergrundorganisation finden und Cohaagen aufhalten. Die Linie zwischen 
+Fantasie und Realität beginnt zu verschwimmen und das Schicksal seiner Welt 
+hängt am seidenen Faden, als Quaid herausfindet, was seine wahre Identität, 
+seine wahre Liebe und sein wahres Schicksal ist.
+
+-  1. Colin Farrell: Doug Quaid/Carl Hauser
+-  2. Kate Beckinsale: Lori Quaid
+-  3. Jessica Biel: Melina
+-  4. Bryan Cranston: Cohaagen
+-  5. Bill Nighy: Matthias
+-  6. John Cho: McClane
+-  7. Bokeem Woodbine: Harry
+-  8. Will Yun Lee: Marek
+-  9. Steve Byers: Henry Reed
+- 10. Currie Graham: Bergen
+- 11. Jesse Bond: Lead Federal Police
+- 12. Brooks Darnell: Stevens
+- 13. Michael Therriault: Bank Clerk
+- 14. Lisa Chandler: Prostitute
+- 15. Milton Barnes: Resistance Fighter
+- 16. Natalie Lisinska: Bohemian Nurse
+- 17. Billy Choi: Street peddler
+- 18. Emily Chang: Newscaster Lien Nguyen
+- 19. James McGowan: Military Adjutant
+- 20. Mishael Morgan: Rekall Receptionist
+- 21. Stephen MacDonald: Slacker
+- 22. Linlyn Lue: Resistance Woman
+- 23. Andrew Moodie: Factory Foreman
+- 24. Kaitlyn Wong: Three-Breasted Woman
+- 25. Danny Waugh: Officer
+- 26. Filip Watermann: Construction Worker (uncredited)
+
+/  1. 52fe46e1c3a368484e0a8fb5 Colin Farrell
+/  2. 52fe46e1c3a368484e0a8fbd Kate Beckinsale
+/  3. 52fe46e1c3a368484e0a8fc5 Jessica Biel
+/  4. 52fe46e1c3a368484e0a8fb9 Bryan Cranston
+/  5. 52fe46e1c3a368484e0a8fc1 Bill Nighy
+/  6. 52fe46e1c3a368484e0a8fc9 John Cho
+/  7. 52fe46e1c3a368484e0a8fcd Bokeem Woodbine
+/  8. 52fe46e1c3a368484e0a8fe9 Will Yun Lee
+/  9. 52fe46e1c3a368484e0a8fed Steve Byers
+/ 10. 52fe46e1c3a368484e0a8ff1 Currie Graham
+/ 11. 52fe46e1c3a368484e0a8ff5 Jesse Bond
+/ 12. 52fe46e1c3a368484e0a8ff9 Brooks Darnell
+/ 13. 52fe46e1c3a368484e0a9051 Michael Therriault
+/ 14. 52fe46e1c3a368484e0a9055 Lisa Chandler
+/ 15. 52fe46e1c3a368484e0a9059 Milton Barnes
+/ 16. 52fe46e1c3a368484e0a905d Natalie Lisinska
+/ 17. 5322eb779251411f850049a7 Billy Choi
+/ 18. 53313602c3a3686a780012b3 Emily Chang
+/ 19. 56aa5f96c3a36872e1007072 James McGowan
+/ 20. 56aa604892514154750055f8 Mishael Morgan
+/ 21. 56aa6131c3a36872db006896 Stephen MacDonald
+/ 22. 56aa645e92514159a5001f2f Linlyn Lue
+/ 23. 56e5cc0fc3a3685aa0007ef9 Andrew Moodie
+/ 24. 5700025092514167830029b0 Kaitlyn Wong
+/ 25. 593c51dcc3a3680f420123c0 Danny Waugh
+/ 26. 56db5cc6c3a3682dac0000d6 Filip Watermann
+###  END  .txt
+ URL: https://image.tmdb.org/t/p/original/4zgwx4HySRVjqSlmbrEKetJr5qo.jpg
+file: Total Recall-64635.jpg
+ URL: https://image.tmdb.org/t/p/original/orFQbyZ6g7kPFaJXmgty0M88wJ0.jpg
+file: Total Recall-64635-backdrop.jpg
+
+$ ls -l
+total 788
+-rw-r--r-- 1 wwwutz wwwutz     64 May 30 15:06 Total Recall-64635-2012.URL
+-rw-r--r-- 1 wwwutz wwwutz 328461 May 30 15:06 Total Recall-64635-backdrop.jpg
+-rw-r--r-- 1 wwwutz wwwutz 466321 May 30 15:06 Total Recall-64635.jpg
+-rw-r--r-- 1 wwwutz wwwutz   3142 May 30 15:06 Total Recall-64635.txt
+
 ```
-overrides `-ID-YYYY.URL` or `' - YYYY'` filename parsing
 
+### supply tmdb.org ID via filename.URL
 
-supplying a complete movie-info generated `.URL` file:
+Supplying a complete `movieinfo` generated `.URL` file will parse the filename for a potiential ID.
 
 ```
-$ ./movieinfo "total recall-64635-2012.URL"
+$ movieinfo "total recall-64635-2012.URL"
+ arg[0]: total recall-64635-2012.URL
+ search: total recall
+### START .txt
+tmdbID:   64635
+Title:    Total Recall
+Tagline:  Was ist Wirklichkeit?
+Release:  2012-08-02
+Runtime:  1 h 58 min
+Overview: Herzlich Willkommen bei Rekall, der Firma, die ihre Träume dank ihres
+
+-  1. Colin Farrell: Doug Quaid/Carl Hauser
+-  2. Kate Beckinsale: Lori Quaid
+-  3. Jessica Biel: Melina
+-  4. Bryan Cranston: Cohaagen
+-  5. Bill Nighy: Matthias
+-  6. John Cho: McClane
+-  7. Bokeem Woodbine: Harry
+-  8. Will Yun Lee: Marek
+-  9. Steve Byers: Henry Reed
+- 10. Currie Graham: Bergen
 ```
-
-It'll try to do it's very best to extract the ID from a filename. But why should it ?
-
-Well, it downloads and creates the most interesting `.txt` file only it you either supply the ID or there is only one result fopr your search.
+It'll try to do it's very best to extract the ID from a filename.
 
 # The final result as a .txt file
 
-Add `--download` to finally create `Title-tmdbID.txt` with all movie meta information we need
+Add `--download` to finally create a `.txt` file with all movie meta information we ( well ok, 'I' ) need
 
 ```
-$ ./movieinfo -d -i 861
-     arg:  
-  search:  
-      id:  861
-download:  false
-    year:  0
-     max:  0
- verbose:  false
-
+$ movieinfo -d -i 861
+ arg[0]: 
+ search: 
 ### START .txt
 tmdbID:   861
 Title:    Total Recall - Die totale Erinnerung
@@ -246,7 +361,13 @@ Tagline:  Mach dich bereit für die Reise deines Lebens.
 OTitle:   Total Recall
 Release:  1990-06-01
 Runtime:  1 h 53 min
-Overview: In ferner Zukunft führt Bauarbeiter Douglas Quaid ein zufriedenes Leben mit seiner attraktiven Ehefrau Lori. Einzig seine immer wiederkehrenden Albträume vom Planeten Mars quälen ihn und so entschließt er sich zu einer virtuellen Reise auf den Roten Planeten. Doch bei der Erinnerungsimplantation geht etwas schief und Quaids Leben ändert sich radikal. Ist er wirklich derjenige, der er zu sein glaubt? Quaid begibt er sich auf die gefährliche Suche nach seiner wahren Identität.
+Overview: In ferner Zukunft führt Bauarbeiter Douglas Quaid ein zufriedenes 
+Leben mit seiner attraktiven Ehefrau Lori. Einzig seine immer wiederkehrenden 
+Albträume vom Planeten Mars quälen ihn und so entschließt er sich zu einer 
+virtuellen Reise auf den Roten Planeten. Doch bei der Erinnerungsimplantation 
+geht etwas schief und Quaids Leben ändert sich radikal. Ist er wirklich 
+derjenige, der er zu sein glaubt? Quaid begibt er sich auf die gefährliche 
+Suche nach seiner wahren Identität.
 
 -  1. Arnold Schwarzenegger: Douglas Quaid/Hauser
 -  2. Sharon Stone: Lori
@@ -292,4 +413,80 @@ Overview: In ferner Zukunft führt Bauarbeiter Douglas Quaid ein zufriedenes Leb
 / 20. 578ce7fcc3a3682bb2011939 David Knell
 / 21. 578ce80ac3a3685b4400a435 Alexia Robinson
 ###  END  .txt
+ URL: https://image.tmdb.org/t/p/original/unjJqoBkzdUIA5Bi1rDdVHo0949.jpg
+file: Total Recall Die totale Erinnerung-861.jpg
+ URL: https://image.tmdb.org/t/p/original/rPqCxVXBD89jeWMgJU3MeFA6GDV.jpg
+file: Total Recall Die totale Erinnerung-861-backdrop.jpg
+
+$ ls -l
+total 288
+-rw-r--r-- 1 wwwutz wwwutz     62 May 30 15:06 Total Recall Die totale Erinnerung-861-1990.URL
+-rw-r--r-- 1 wwwutz wwwutz 148477 May 30 15:06 Total Recall Die totale Erinnerung-861-backdrop.jpg
+-rw-r--r-- 1 wwwutz wwwutz 134386 May 30 15:06 Total Recall Die totale Erinnerung-861.jpg
+-rw-r--r-- 1 wwwutz wwwutz   2322 May 30 15:06 Total Recall Die totale Erinnerung-861.txt
+
 ```
+
+## unrelated feature: renaming files
+
+`movieinfo --mvtoext` allows you to bulk rename files to the filename with the supplied extension.
+
+Given the following files:
+```
+
+3v3n_uglier.meta
+Nice-Name.txt
+ugly_m0VieNam3.URL
+ugly_m0VieNam3.avi
+ugly_m0VieNam3.iso
+
+```
+Now let them all be called `Nice-Name.*`
+
+```
+$ movieinfo --mvtoext .txt 3v3n_uglier.meta Nice-Name.txt ugly_m0VieNam3.URL ugly_m0VieNam3.avi ugly_m0VieNam3.iso
+
+ filenames[0]: 3v3n_uglier.meta
+ filenames[1]: Nice-Name.txt
+ filenames[2]: ugly_m0VieNam3.URL
+ filenames[3]: ugly_m0VieNam3.avi
+ filenames[4]: ugly_m0VieNam3.iso
+ mv 3v3n_uglier.meta Nice-Name.meta
+ mv ugly_m0VieNam3.URL Nice-Name.URL
+ mv ugly_m0VieNam3.avi Nice-Name.avi
+ mv ugly_m0VieNam3.iso Nice-Name.iso
+
+$ ls -C1
+Nice-Name.URL
+Nice-Name.avi
+Nice-Name.iso
+Nice-Name.meta
+Nice-Name.txt
+
+```
+Don't fall for it: It only uses the filenames you supply in the commandline:
+```
+
+$ movieinfo --mvtoext .txt *.{avi,iso}
+ filenames[0]: ugly_m0VieNam3.avi
+ filenames[1]: ugly_m0VieNam3.iso
+# 2 != 1 : exit
+ fail[1]:  no file with extension .txt supplied
+
+```
+Renaming one file:
+```
+$ movieinfo --mvtoext .txt ugly_m0VieNam3.avi Nice-Name.txt
+ filenames[0]: ugly_m0VieNam3.avi
+ filenames[1]: Nice-Name.txt
+ mv ugly_m0VieNam3.avi Nice-Name.avi
+
+$ ls -C1
+3v3n_uglier.meta
+Nice-Name.avi
+Nice-Name.txt
+ugly_m0VieNam3.URL
+ugly_m0VieNam3.iso
+
+```
+Remember: It does *not* search in your folder. You must not supply more or less than one filename with the supplied extension. Captain Obvious.

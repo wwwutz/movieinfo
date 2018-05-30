@@ -19,6 +19,8 @@ import (
 	"github.com/urfave/cli"
 )
 
+//go:generate go run README.go
+
 type MovieResult struct {
 	Title       string
 	ReleaseDate string
@@ -31,7 +33,8 @@ var download bool
 var verbose bool
 
 func downloadFile(URL string, filename string) error {
-	fmt.Printf("### download(%s, %s)\n", URL, filename)
+	fmt.Printf(" URL: %s\n", URL)
+	fmt.Printf("file: %s\n", filename)
 	if _, err := os.Stat(filename); err == nil {
 		// path/to/whatever exists
 		fmt.Println("# " + filename + " already exists. skipping")
@@ -239,7 +242,7 @@ func tmdbMovie(mID int, search string, argsyear int) (*tmdb.Movie, error) {
 			// - do not download complete tmdb.Movie
 
 			for i, element := range lookup.Results {
-				fmt.Printf("--- %d. ID: %d\n", i+1, element.ID)
+				fmt.Printf("/* %2d. ID: %-5d */\n", i+1, element.ID)
 				fmt.Printf("        Title: %s\n", element.Title)
 				if element.Title != element.OriginalTitle {
 					fmt.Printf("OriginalTitle: %s\n", element.OriginalTitle)
@@ -288,7 +291,7 @@ func tmdbMovie(mID int, search string, argsyear int) (*tmdb.Movie, error) {
 		var m *tmdb.Movie
 		options["append_to_response"] = "credits"
 		m, err := db.GetMovieInfo(mID, options)
-		exiton(err, fmt.Sprintf("GetMovieInfo(%d,%#v)",mID,options))
+		exiton(err, fmt.Sprintf("GetMovieInfo(%d,%#v)", mID, options))
 
 		if verbose {
 			dumptmdbMovie(m)
@@ -418,7 +421,7 @@ func mvtoextension(mvtoext string, filenames []string) error {
 	}
 	if moveto == "" {
 		fcnt += 1
-		fail[fcnt] = " no file with extension " + mvtoext + " found"
+		fail[fcnt] = " no file with extension " + mvtoext + " supplied"
 	}
 	if fcnt != 0 {
 		fmt.Printf("# %d != %d : exit\n", ok, fcnt)
@@ -534,20 +537,24 @@ func main() {
 		verbose = c.Bool("verbose")
 		TMDB_API = c.String("TMDB_API")
 		mvtoext := c.String("mvtoext")
-		fmt.Println("     arg: ", arg)
-		fmt.Println("  search: ", search)
-		fmt.Println("      id: ", mID)
-		fmt.Println("download: ", download)
-		fmt.Println("    year: ", year)
-		fmt.Println("     max: ", maxe)
-		fmt.Println(" verbose: ", verbose)
-		fmt.Println(" mvtoext: ", mvtoext)
-		fmt.Print("\n")
+		if verbose {
+			fmt.Println("      id: ", mID)
+			fmt.Println("download: ", download)
+			fmt.Println("    year: ", year)
+			fmt.Println("     max: ", maxe)
+			fmt.Print("\n")
+		}
 
 		if c.String("mvtoext") != "" {
+			if verbose {
+				fmt.Println(" mvtoext: ", mvtoext)
+			}
 			mvtoextension(c.String("mvtoext"), c.Args())
 			return nil
 		}
+		fmt.Println(" arg[0]:", arg)
+		fmt.Println(" search:", search)
+
 		tmdbMovie(mID, search, year)
 
 		return nil

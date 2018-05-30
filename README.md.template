@@ -1,0 +1,181 @@
+# movieinfo
+get ridiculous least information from tmdb
+
+The idea is to create a text file with movie meta information and download a poster and backdrop image into your current directory. The created text file has no distractive formatting and can be fed to `grep` or maybe  `find /movies -type f -name '*.txt' -print0 | xargs -0 grep -i schwarzenegger` . Which is a good thing.
+
+{{ "movieinfo -d \"total recall\" >/dev/null" | runclean }}
+```
+$ movieinfo -d "total recall"
+```
+et voila
+```
+{{ "ls -C1 *" | run }}
+```
+# warning
+
+Do **not** take this source as go/golang reference. I'm a `perl` person. This is my first try to do a little bit more with golang. Based on `"golang string to int"` or `"golang write file"` web searches.
+The `movieinfo` command creates several files in your current directory, so it might overwrite yours.
+It connects to the internet [[1]](https://www.youtube.com/watch?v=iDbyYGrswtg) to download data. Well, that's the idea.
+
+You better have backup.
+You have been warned.
+
+[1] https://www.youtube.com/watch?v=iDbyYGrswtg
+
+## prerequisites
+
+* You will need a tmdb.org API key as seen on  https://www.themoviedb.org/documentation/api
+
+1. goto https://www.themoviedb.org
+1. create an account
+1. get your API key
+
+# features
+* works for me. Fork it, change it: it'll work for you
+* downloads images like poster, backdrop etc.
+* creates unique filenames which group together on sort by name in your favourite filemanager like e.g. `/usr/bin/ls`
+* is designed to be used as a command line tool
+* due to `golang` it runs on
+  * Synology DSM NAS
+  * Debian laptop
+  * Linux workstation
+  * Windows (integrated into a [DirectoryOpus](https://www.gpsoft.com.au) button)
+
+# repeat
+
+* You will need a tmdb.org API key as seen on  https://www.themoviedb.org/documentation/api
+
+## installation linux
+* go get `go`
+* `go get github.com/wwwutz/movieinfo`
+* `cd $GOPATH/src/github.com/wwwutz/movieinfo`
+* `go build`
+* `cp movieinfo` somewhere in your `$PATH` if you prefer
+* `GOOS=wiondows GOARCH=amd64 go build` to create a windows `.exe`
+
+# usage
+Set up you API key. Either save it as environment variable `TMDB_API` or supply it on the commandline.
+
+```
+{{ "movieinfo --help" | run }}
+```
+
+### get info for "Total Recall"
+ We'll find four versions of "Total Recall". The third ID 180 is obviously wrong.
+
+```
+$ movieinfo "total recall"
+{{ "movieinfo \"total recall\"" | run }}
+```
+
+### download images for "Total Recall"
+
+Let's just download all available poster and backdrop images and create a `.URL` file in the current directory.
+
+before:
+```
+$ ls -l
+{{ "ls -l" | runclean }}
+```
+calling `movieinfo` command with `--download` option:
+```
+$ movieinfo -d "total recall"
+
+{{ "movieinfo -d \"total recall\"" | run }}
+```
+
+now we have:
+
+```
+$ ls -l
+{{ "ls -l" | run }}
+```
+
+### sort out the mess
+
+And now we can start sorting out. We're looking for the Arnie version via the `.URL` files
+1. `{{ "echo *-180-*.URL" | run }}` ...
+1. `{{ "echo *-408340-*.URL" | run }}` points to ... well whatever
+1. `{{ "echo *-64635-*.URL" | run }}` looks like the remake
+1. `{{ "echo *-861-*.URL" | run }}` Yeah! That's the one. Go Arnie, pull that thing out of your nose
+
+"Hmmm.. german ? Ah, that's what you meant with 'works for me' 8-)"
+
+Let's get rid of the others (using filename completion via the tabulator key `[TAB]` or use a decent file manager.
+
+Oh and try not to delete your movie files ;-)
+
+### restrict number of results
+
+use the `--max=n` option. This limits the output to `n` results. The default is zero (`0`) which means unlimited. Let's try one (`1`).
+
+```
+$ movieinfo -m 1 "total recall"
+{{ "movieinfo -m 1 \"total recall\"" | run }}
+```
+
+If there would be more than one (`1`) hit, the result is random. The Arnie version might not be the first one to pop up. I'm using 4 or 5 for scripts (`--max=5`), in 99% of all cases the movie I was looking for pops up in the first results.
+
+### supply tmdb.org ID via options
+
+Once you have the tmdb.org ID of your movie you can restict the output and even get overview and cast in a `.txt` file
+
+The command line option `-i <tmdb.org ID>` has highest priority and restricts output to this ID
+```
+$ movieinfo -d -i 64635
+{{ "movieinfo -d -i 64635 \"total recall\"|fold -s" | runclean }}
+$ ls -l
+{{ "ls -l" | run }}
+```
+
+### supply tmdb.org ID via filename.URL
+
+Supplying a complete `movieinfo` generated `.URL` file will parse the filename for a potiential ID.
+
+```
+$ movieinfo "total recall-64635-2012.URL"
+{{ "movieinfo \"total recall-64635-2012.URL\">.x;head -20 .x|cut -c-80" | runclean }}```
+It'll try to do it's very best to extract the ID from a filename.
+
+# The final result as a .txt file
+
+Add `--download` to finally create a `.txt` file with all movie meta information we ( well ok, 'I' ) need
+
+```
+$ movieinfo -d -i 861
+{{ "movieinfo -d -i 861|fold -s" | runclean }}
+$ ls -l
+{{ "ls -l" | run }}
+```
+
+## unrelated feature: renaming files
+
+`movieinfo --mvtoext` allows you to bulk rename files to the filename with the supplied extension.
+
+Given the following files:
+```
+{{ "touch ugly_m0VieNam3.{avi,iso,URL};touch 3v3n_uglier.meta;touch Nice-Name.txt;" | runclean }}
+{{ "ls -C1" | run }}
+```
+Now let them all be called `Nice-Name.*`
+
+```
+$ movieinfo --mvtoext .txt {{"echo *"|run}}
+{{"movieinfo --mvtoext .txt *" | run}}
+$ ls -C1
+{{ "ls -C1" | run }}
+```
+Don't fall for it: It only uses the filenames you supply in the commandline:
+```
+{{ "touch ugly_m0VieNam3.{avi,iso,URL};touch 3v3n_uglier.meta;touch Nice-Name.txt;" | runclean }}
+$ movieinfo --mvtoext .txt *.{avi,iso}
+{{"movieinfo --mvtoext .txt *.{avi,iso}" | run}}
+```
+Renaming one file:
+```
+$ movieinfo --mvtoext .txt ugly_m0VieNam3.avi Nice-Name.txt
+{{"movieinfo --mvtoext .txt ugly_m0VieNam3.avi Nice-Name.txt" | run}}
+$ ls -C1
+{{ "ls -C1" | run }}
+```
+Remember: It does *not* search in your folder. You must not supply more or less than one filename with the supplied extension. Captain Obvious.
