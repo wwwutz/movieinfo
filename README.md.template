@@ -9,7 +9,7 @@ $ movieinfo -d "total recall"
 ```
 et voila
 ```
-{{ "ls -C1 *" | run }}
+{{ "ls -1 *" | run }}
 ```
 # warning
 
@@ -87,8 +87,8 @@ $ movieinfo -d "total recall"
 now we have:
 
 ```
-$ ls -l
-{{ "ls -l" | run }}
+$ ls -1
+{{ "ls -1" | run }}
 ```
 
 ### sort out the mess
@@ -124,8 +124,8 @@ The command line option `-i <tmdb.org ID>` has highest priority and restricts ou
 ```
 $ movieinfo -d -i 64635
 {{ "movieinfo -d -i 64635 \"total recall\"|fold -s" | runclean }}
-$ ls -l
-{{ "ls -l" | run }}
+$ ls -1
+{{ "ls -1" | run }}
 ```
 
 ### supply tmdb.org ID via filename.URL
@@ -144,8 +144,8 @@ Add `--download` to finally create a `.txt` file with all movie meta information
 ```
 $ movieinfo -d -i 861
 {{ "movieinfo -d -i 861|fold -s" | runclean }}
-$ ls -l
-{{ "ls -l" | run }}
+$ ls -1
+{{ "ls -1" | run }}
 ```
 
 ## unrelated feature: renaming files
@@ -155,15 +155,15 @@ $ ls -l
 Given the following files:
 ```
 {{ "touch ugly_m0VieNam3.{avi,iso,URL};touch 3v3n_uglier.meta;touch Nice-Name.txt;" | runclean }}
-{{ "ls -C1" | run }}
+{{ "ls -1" | run }}
 ```
 Now let them all be called `Nice-Name.*`
 
 ```
 $ movieinfo --mvtoext .txt {{"echo *"|run}}
 {{"movieinfo --mvtoext .txt *" | run}}
-$ ls -C1
-{{ "ls -C1" | run }}
+$ ls -1
+{{ "ls -1" | run }}
 ```
 Don't fall for it: It only uses the filenames you supply in the commandline:
 ```
@@ -175,7 +175,7 @@ Renaming one file:
 ```
 $ movieinfo --mvtoext .txt ugly_m0VieNam3.avi Nice-Name.txt
 {{"movieinfo --mvtoext .txt ugly_m0VieNam3.avi Nice-Name.txt" | run}}
-$ ls -C1
-{{ "ls -C1" | run }}
+$ ls -1
+{{ "ls -1" | run }}
 ```
 Remember: It does *not* search in your folder. You must not supply more or less than one filename with the supplied extension. Captain Obvious.

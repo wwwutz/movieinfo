@@ -99,14 +99,14 @@ GLOBAL OPTIONS:
 $ movieinfo "total recall"
  arg[0]: total recall
  search: total recall
-/*  1. ID: 64635 */
-        Title: Total Recall
-  ReleaseDate: 2012-08-02
-
-/*  2. ID: 861   */
+/*  1. ID: 861   */
         Title: Total Recall - Die totale Erinnerung
 OriginalTitle: Total Recall
   ReleaseDate: 1990-06-01
+
+/*  2. ID: 64635 */
+        Title: Total Recall
+  ReleaseDate: 2012-08-02
 
 /*  3. ID: 408340 */
         Title: Total Recall
@@ -135,15 +135,7 @@ $ movieinfo -d "total recall"
 
  arg[0]: total recall
  search: total recall
-/*  1. ID: 64635 */
-        Title: Total Recall
-  ReleaseDate: 2012-08-02
-
- URL: https://image.tmdb.org/t/p/original/4zgwx4HySRVjqSlmbrEKetJr5qo.jpg
-file: Total Recall-64635.jpg
- URL: https://image.tmdb.org/t/p/original/orFQbyZ6g7kPFaJXmgty0M88wJ0.jpg
-file: Total Recall-64635-backdrop.jpg
-/*  2. ID: 861   */
+/*  1. ID: 861   */
         Title: Total Recall - Die totale Erinnerung
 OriginalTitle: Total Recall
   ReleaseDate: 1990-06-01
@@ -152,6 +144,14 @@ OriginalTitle: Total Recall
 file: Total Recall Die totale Erinnerung-861.jpg
  URL: https://image.tmdb.org/t/p/original/rPqCxVXBD89jeWMgJU3MeFA6GDV.jpg
 file: Total Recall Die totale Erinnerung-861-backdrop.jpg
+/*  2. ID: 64635 */
+        Title: Total Recall
+  ReleaseDate: 2012-08-02
+
+ URL: https://image.tmdb.org/t/p/original/4zgwx4HySRVjqSlmbrEKetJr5qo.jpg
+file: Total Recall-64635.jpg
+ URL: https://image.tmdb.org/t/p/original/orFQbyZ6g7kPFaJXmgty0M88wJ0.jpg
+file: Total Recall-64635-backdrop.jpg
 /*  3. ID: 408340 */
         Title: Total Recall
   ReleaseDate: 
@@ -170,18 +170,17 @@ file: Minority Report-180-backdrop.jpg
 now we have:
 
 ```
-$ ls -l
-total 1484
--rw-r--r-- 1 wwwutz wwwutz     62 May 30 15:06 Minority Report-180-2002.URL
--rw-r--r-- 1 wwwutz wwwutz 220227 May 30 15:06 Minority Report-180-backdrop.jpg
--rw-r--r-- 1 wwwutz wwwutz 193067 May 30 15:06 Minority Report-180.jpg
--rw-r--r-- 1 wwwutz wwwutz     62 May 30 15:06 Total Recall Die totale Erinnerung-861-1990.URL
--rw-r--r-- 1 wwwutz wwwutz 148477 May 30 15:06 Total Recall Die totale Erinnerung-861-backdrop.jpg
--rw-r--r-- 1 wwwutz wwwutz 134386 May 30 15:06 Total Recall Die totale Erinnerung-861.jpg
--rw-r--r-- 1 wwwutz wwwutz     65 May 30 15:06 Total Recall-408340-0000.URL
--rw-r--r-- 1 wwwutz wwwutz     64 May 30 15:06 Total Recall-64635-2012.URL
--rw-r--r-- 1 wwwutz wwwutz 328461 May 30 15:06 Total Recall-64635-backdrop.jpg
--rw-r--r-- 1 wwwutz wwwutz 466321 May 30 15:06 Total Recall-64635.jpg
+$ ls -1
+Minority Report-180-2002.URL
+Minority Report-180-backdrop.jpg
+Minority Report-180.jpg
+Total Recall Die totale Erinnerung-861-1990.URL
+Total Recall Die totale Erinnerung-861-backdrop.jpg
+Total Recall Die totale Erinnerung-861.jpg
+Total Recall-408340-0000.URL
+Total Recall-64635-2012.URL
+Total Recall-64635-backdrop.jpg
+Total Recall-64635.jpg
 
 ```
 
@@ -211,9 +210,10 @@ use the `--max=n` option. This limits the output to `n` results. The default is 
 $ movieinfo -m 1 "total recall"
  arg[0]: total recall
  search: total recall
-/*  1. ID: 64635 */
-        Title: Total Recall
-  ReleaseDate: 2012-08-02
+/*  1. ID: 861   */
+        Title: Total Recall - Die totale Erinnerung
+OriginalTitle: Total Recall
+  ReleaseDate: 1990-06-01
 
 
 ```
@@ -304,16 +304,15 @@ seine wahre Liebe und sein wahres Schicksal ist.
 / 26. 56db5cc6c3a3682dac0000d6 Filip Watermann
 ###  END  .txt
  URL: https://image.tmdb.org/t/p/original/4zgwx4HySRVjqSlmbrEKetJr5qo.jpg
-file: Total Recall-64635.jpg
+file: Total Recall.jpg
  URL: https://image.tmdb.org/t/p/original/orFQbyZ6g7kPFaJXmgty0M88wJ0.jpg
-file: Total Recall-64635-backdrop.jpg
+file: Total Recall-backdrop.jpg
 
-$ ls -l
-total 788
--rw-r--r-- 1 wwwutz wwwutz     64 May 30 15:06 Total Recall-64635-2012.URL
--rw-r--r-- 1 wwwutz wwwutz 328461 May 30 15:06 Total Recall-64635-backdrop.jpg
--rw-r--r-- 1 wwwutz wwwutz 466321 May 30 15:06 Total Recall-64635.jpg
--rw-r--r-- 1 wwwutz wwwutz   3142 May 30 15:06 Total Recall-64635.txt
+$ ls -1
+Total Recall-64635-2012.URL
+Total Recall-backdrop.jpg
+Total Recall.jpg
+Total Recall.txt
 
 ```
 
@@ -414,16 +413,15 @@ Suche nach seiner wahren Identität.
 / 21. 578ce80ac3a3685b4400a435 Alexia Robinson
 ###  END  .txt
  URL: https://image.tmdb.org/t/p/original/unjJqoBkzdUIA5Bi1rDdVHo0949.jpg
-file: Total Recall Die totale Erinnerung-861.jpg
+file: Total Recall Die totale Erinnerung.jpg
  URL: https://image.tmdb.org/t/p/original/rPqCxVXBD89jeWMgJU3MeFA6GDV.jpg
-file: Total Recall Die totale Erinnerung-861-backdrop.jpg
+file: Total Recall Die totale Erinnerung-backdrop.jpg
 
-$ ls -l
-total 288
--rw-r--r-- 1 wwwutz wwwutz     62 May 30 15:06 Total Recall Die totale Erinnerung-861-1990.URL
--rw-r--r-- 1 wwwutz wwwutz 148477 May 30 15:06 Total Recall Die totale Erinnerung-861-backdrop.jpg
--rw-r--r-- 1 wwwutz wwwutz 134386 May 30 15:06 Total Recall Die totale Erinnerung-861.jpg
--rw-r--r-- 1 wwwutz wwwutz   2322 May 30 15:06 Total Recall Die totale Erinnerung-861.txt
+$ ls -1
+Total Recall Die totale Erinnerung-861-1990.URL
+Total Recall Die totale Erinnerung-backdrop.jpg
+Total Recall Die totale Erinnerung.jpg
+Total Recall Die totale Erinnerung.txt
 
 ```
 
@@ -456,7 +454,7 @@ $ movieinfo --mvtoext .txt 3v3n_uglier.meta Nice-Name.txt ugly_m0VieNam3.URL ugl
  mv ugly_m0VieNam3.avi Nice-Name.avi
  mv ugly_m0VieNam3.iso Nice-Name.iso
 
-$ ls -C1
+$ ls -1
 Nice-Name.URL
 Nice-Name.avi
 Nice-Name.iso
@@ -481,7 +479,7 @@ $ movieinfo --mvtoext .txt ugly_m0VieNam3.avi Nice-Name.txt
  filenames[1]: Nice-Name.txt
  mv ugly_m0VieNam3.avi Nice-Name.avi
 
-$ ls -C1
+$ ls -1
 3v3n_uglier.meta
 Nice-Name.avi
 Nice-Name.txt

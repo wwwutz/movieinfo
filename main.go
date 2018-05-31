@@ -65,26 +65,6 @@ func downloadFile(URL string, filename string) error {
 	return nil
 }
 
-func tmdbURLfile(filename string, mID int) error {
-	if _, err := os.Stat(filename); err == nil {
-		// path/to/whatever exists
-		fmt.Println("# " + filename + " already exists. skipping")
-	} else {
-		file, err := os.Create(filename) // Truncates if file already exists, be careful!
-		if err != nil {
-			log.Fatalf("failed creating file: %s", err)
-		}
-		defer file.Close()
-
-		_, err = file.WriteString(fmt.Sprintf("[InternetShortcut]\r\nURL=https://www.themoviedb.org/movie/%d\r\n", mID))
-
-		if err != nil {
-			log.Fatalf("failed writing to file: %s", err)
-		}
-	}
-	return nil
-}
-
 func exists(filename string) bool {
 	if _, err := os.Stat(filename); err == nil {
 		return true
@@ -93,12 +73,25 @@ func exists(filename string) bool {
 }
 
 func writefile(filename string, data []byte) error {
+	if exists(filename) {
+		return errors.New(filename + "already exists")
+	}
 	file, err := os.Create(filename) // Truncates if file already exists
 	exiton(err, "Create("+filename+")")
 	defer file.Close()
 
 	_, err = file.Write(data)
 	exiton(err, "writefile("+filename+")")
+	return nil
+}
+
+func overwritefile(filename string, data []byte) error {
+	file, err := os.Create(filename) // Truncates if file already exists
+	exiton(err, "Create("+filename+")")
+	defer file.Close()
+
+	_, err = file.Write(data)
+	exiton(err, "overwritefile("+filename+")")
 	return nil
 }
 
@@ -320,14 +313,12 @@ func tmdbMovie(mID int, search string, argsyear int) (*tmdb.Movie, error) {
 
 		if download {
 			// .txt, .URL, -{poster,backdrop}.jpg
-			cleantitle, _ := cleanuptitle(m.Title)
-
-			filename := fmt.Sprintf("%s-%d", cleantitle, mID)
+			filename, _ := cleanuptitle(m.Title)
 
 			writefile(filename+".txt", []byte(txt))
 
 			url := fmt.Sprintf("[InternetShortcut]\r\nURL=https://www.themoviedb.org/movie/%d\r\n", mID)
-			writefile(filename+fmt.Sprintf("-%04d.URL", year), []byte(url))
+			writefile(filename+fmt.Sprintf("-%d-%04d.URL", mID, year), []byte(url))
 
 			if m.PosterPath != "" {
 				downloadFile("https://image.tmdb.org/t/p/original"+m.PosterPath, filename+".jpg")
