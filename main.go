@@ -294,11 +294,14 @@ func tmdbMovie(mID int, search string, argsyear int) (*tmdb.Movie, error) {
 		if m.Overview == "" && options["language"] != m.OriginalLanguage {
 			fmt.Printf("# Overview empty. Switching from %s to %s, retrying\n", options["language"], m.OriginalLanguage)
 			options["language"] = m.OriginalLanguage
-			m, err = db.GetMovieInfo(mID, options)
+
+			mretry, err := db.GetMovieInfo(mID, options)
 			exiton(err, "GetMovieInfo("+options["language"]+")")
 			if verbose {
-				dumptmdbMovie(m)
+				dumptmdbMovie(mretry)
 			}
+			// take this overview, but keep all other data
+			m.Overview = mretry.Overview
 		}
 		year := 0
 		date, err := dateparse.ParseAny(m.ReleaseDate)
