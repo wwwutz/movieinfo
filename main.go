@@ -31,6 +31,7 @@ var TMDB_API string
 var maxe int
 var download bool
 var verbose bool
+var removeart bool
 
 func downloadFile(URL string, filename string) error {
 	fmt.Printf(" URL: %s\n", URL)
@@ -325,9 +326,23 @@ func tmdbMovie(mID int, search string, argsyear int) (*tmdb.Movie, error) {
 
 			if m.PosterPath != "" {
 				downloadFile("https://image.tmdb.org/t/p/original"+m.PosterPath, filename+".jpg")
+				if removeart {
+					art := filename + fmt.Sprintf("-%d.jpg", mID)
+					if exists(art) {
+						fmt.Printf("removing artefact %s\n", art)
+						os.Remove(art)
+					}
+				}
 			}
 			if m.BackdropPath != "" {
 				downloadFile("https://image.tmdb.org/t/p/original"+m.BackdropPath, filename+"-backdrop.jpg")
+				if removeart {
+					art := filename + fmt.Sprintf("-%d-backdrop.jpg", mID)
+					if exists(art) {
+						fmt.Printf("removing artefact %s\n", art)
+						os.Remove(art)
+					}
+				}
 			}
 
 		}
@@ -479,7 +494,7 @@ func main() {
 	app.Name = "movieinfo"
 	app.Usage = "query tmdb.org to download backdrops, cover and more"
 	app.UsageText = "movieinfo [movie]"
-	app.Version = "0.2"
+	app.Version = "0.3"
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
 			Name:  "download, d",
@@ -510,6 +525,10 @@ func main() {
 			Name:  "mvtoext, mv",
 			Usage: "rename files to filename with this extension",
 		},
+		cli.BoolFlag{
+			Name:  "removeartefacts, rma",
+			Usage: "removes files with mID",
+		},
 	}
 
 	app.Action = func(c *cli.Context) error {
@@ -531,6 +550,7 @@ func main() {
 		verbose = c.Bool("verbose")
 		TMDB_API = c.String("TMDB_API")
 		mvtoext := c.String("mvtoext")
+		removeart = c.Bool("removeartefacts")
 		if verbose {
 			fmt.Println("      id: ", mID)
 			fmt.Println("download: ", download)
