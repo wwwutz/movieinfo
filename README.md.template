@@ -9,7 +9,7 @@ $ movieinfo -d "total recall"
 ```
 et voila
 ```
-{{ "ls -1 *" | run }}
+{{ "ls -1" | run }}
 ```
 # warning
 
