@@ -101,6 +101,9 @@ func runclean(cmd string) string {
 
 func main() {
 
+	cwd,err := os.Getwd()
+	err = os.Setenv("PATH",cwd+":"+os.Getenv("PATH"))
+
 	funcMap := template.FuncMap{
 		"run":      run,
 		"runclean": runclean,
