@@ -77,7 +77,7 @@ func run(cmd string) string {
 	tmpdir := "movieinfo.tmp"
 	_ = os.Mkdir(tmpdir, 0755)
 	die(os.Chdir(tmpdir))
-	c := exec.Command("sh", "-c", cmd)
+	c := exec.Command("bash", "-c", cmd)
 	out, err := c.CombinedOutput()
 	die(err)
 	return string(out)
@@ -93,13 +93,16 @@ func runclean(cmd string) string {
 	die(os.RemoveAll(tmpdir))
 	_ = os.Mkdir(tmpdir, 0755)
 	die(os.Chdir(tmpdir))
-	c := exec.Command("sh", "-c", cmd)
+	c := exec.Command("bash", "-c", cmd)
 	out, err := c.CombinedOutput()
 	die(err)
 	return string(out)
 }
 
 func main() {
+
+	cwd,err := os.Getwd()
+	err = os.Setenv("PATH",cwd+":"+os.Getenv("PATH"))
 
 	funcMap := template.FuncMap{
 		"run":      run,

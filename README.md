@@ -12,13 +12,13 @@ et voila
 Minority Report-180-2002.URL
 Minority Report-180-backdrop.jpg
 Minority Report-180.jpg
-Total Recall Die totale Erinnerung-861-1990.URL
-Total Recall Die totale Erinnerung-861-backdrop.jpg
-Total Recall Die totale Erinnerung-861.jpg
 Total Recall-408340-0000.URL
 Total Recall-64635-2012.URL
 Total Recall-64635-backdrop.jpg
 Total Recall-64635.jpg
+Total Recall Die totale Erinnerung-861-1990.URL
+Total Recall Die totale Erinnerung-861-backdrop.jpg
+Total Recall Die totale Erinnerung-861.jpg
 
 ```
 # warning
@@ -74,7 +74,7 @@ USAGE:
    movieinfo [movie]
 
 VERSION:
-   0.2
+   0.3
 
 COMMANDS:
      help, h  Shows a list of commands or help for one command
@@ -87,6 +87,7 @@ GLOBAL OPTIONS:
    --id value, -i value         tmdb movie ID (default: 0)
    --TMDB_API value             tmdb.org API key [$TMDB_API]
    --mvtoext value, --mv value  rename files to filename with this extension
+   --removeartefacts, --rma     removes files with mID
    --help, -h                   show help
    --version, -v                print the version
 
@@ -162,7 +163,7 @@ file: Total Recall-64635-backdrop.jpg
 
  URL: https://image.tmdb.org/t/p/original/9niGbmFeaR27pu7cPuQQrStkLlt.jpg
 file: Minority Report-180.jpg
- URL: https://image.tmdb.org/t/p/original/jP9f3PAm3gWotvrkCKsJEyVAyiK.jpg
+ URL: https://image.tmdb.org/t/p/original/u8BvwuiiQ0uLFuXviKJU0cCHXIW.jpg
 file: Minority Report-180-backdrop.jpg
 
 ```
@@ -174,13 +175,13 @@ $ ls -1
 Minority Report-180-2002.URL
 Minority Report-180-backdrop.jpg
 Minority Report-180.jpg
-Total Recall Die totale Erinnerung-861-1990.URL
-Total Recall Die totale Erinnerung-861-backdrop.jpg
-Total Recall Die totale Erinnerung-861.jpg
 Total Recall-408340-0000.URL
 Total Recall-64635-2012.URL
 Total Recall-64635-backdrop.jpg
 Total Recall-64635.jpg
+Total Recall Die totale Erinnerung-861-1990.URL
+Total Recall Die totale Erinnerung-861-backdrop.jpg
+Total Recall Die totale Erinnerung-861.jpg
 
 ```
 
@@ -434,32 +435,32 @@ Given the following files:
 
 3v3n_uglier.meta
 Nice-Name.txt
-ugly_m0VieNam3.URL
 ugly_m0VieNam3.avi
 ugly_m0VieNam3.iso
+ugly_m0VieNam3.URL
 
 ```
 Now let them all be called `Nice-Name.*`
 
 ```
-$ movieinfo --mvtoext .txt 3v3n_uglier.meta Nice-Name.txt ugly_m0VieNam3.URL ugly_m0VieNam3.avi ugly_m0VieNam3.iso
+$ movieinfo --mvtoext .txt 3v3n_uglier.meta Nice-Name.txt ugly_m0VieNam3.avi ugly_m0VieNam3.iso ugly_m0VieNam3.URL
 
  filenames[0]: 3v3n_uglier.meta
  filenames[1]: Nice-Name.txt
- filenames[2]: ugly_m0VieNam3.URL
- filenames[3]: ugly_m0VieNam3.avi
- filenames[4]: ugly_m0VieNam3.iso
+ filenames[2]: ugly_m0VieNam3.avi
+ filenames[3]: ugly_m0VieNam3.iso
+ filenames[4]: ugly_m0VieNam3.URL
  mv 3v3n_uglier.meta Nice-Name.meta
- mv ugly_m0VieNam3.URL Nice-Name.URL
  mv ugly_m0VieNam3.avi Nice-Name.avi
  mv ugly_m0VieNam3.iso Nice-Name.iso
+ mv ugly_m0VieNam3.URL Nice-Name.URL
 
 $ ls -1
-Nice-Name.URL
 Nice-Name.avi
 Nice-Name.iso
 Nice-Name.meta
 Nice-Name.txt
+Nice-Name.URL
 
 ```
 Don't fall for it: It only uses the filenames you supply in the commandline:
@@ -483,8 +484,8 @@ $ ls -1
 3v3n_uglier.meta
 Nice-Name.avi
 Nice-Name.txt
-ugly_m0VieNam3.URL
 ugly_m0VieNam3.iso
+ugly_m0VieNam3.URL
 
 ```
 Remember: It does *not* search in your folder. You must not supply more or less than one filename with the supplied extension. Captain Obvious.
