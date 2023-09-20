@@ -221,7 +221,13 @@ func tmdbMovie(mID int, search string, argsyear int) (*tmdb.Movie, error) {
 		options["year"] = strconv.Itoa(argsyear)
 	}
 
-	db := tmdb.Init(TMDB_API)
+	config := tmdb.Config{
+		APIKey:   TMDB_API,
+		Proxies:  nil,
+		UseProxy: false,
+	}
+
+	db := tmdb.Init(config)
 
 	// no mID supplied: go search for a couple of movies
 	if mID == 0 {
@@ -494,7 +500,7 @@ func main() {
 	app.Name = "movieinfo"
 	app.Usage = "query tmdb.org to download backdrops, cover and more"
 	app.UsageText = "movieinfo [movie]"
-	app.Version = "0.3"
+	app.Version = "0.4"
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
 			Name:  "download, d",
