@@ -391,7 +391,7 @@ func cleanuptitle(name string) (string, int) {
 	//	clname = re.ReplaceAllString(clname, ``)
 	clname = regexp.MustCompile(`\-\d+\-\d\d\d\d\.\w{2,3}$`).ReplaceAllString(clname, ``)
 	clname = regexp.MustCompile(`\.\w{2,3}$`).ReplaceAllString(clname, ``)
-	clname = regexp.MustCompile(`[_.\-:/\?\*]`).ReplaceAllString(clname, ` `)
+	clname = regexp.MustCompile(`[_:/\?\*]`).ReplaceAllString(clname, ` `)
 	// trim everywhere
 	clname = strings.Join(strings.Fields(clname), " ")
 	return clname, year
