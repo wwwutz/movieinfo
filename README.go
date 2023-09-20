@@ -1,3 +1,4 @@
+//go:build ignore
 // +build ignore
 
 // This program generates README.md. It can be invoked by running
@@ -101,8 +102,8 @@ func runclean(cmd string) string {
 
 func main() {
 
-	cwd,err := os.Getwd()
-	err = os.Setenv("PATH",cwd+":"+os.Getenv("PATH"))
+	cwd, err := os.Getwd()
+	err = os.Setenv("PATH", cwd+":"+os.Getenv("PATH"))
 
 	funcMap := template.FuncMap{
 		"run":      run,
