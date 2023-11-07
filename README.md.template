@@ -51,7 +51,7 @@ You have been warned.
 * `cd $GOPATH/src/github.com/wwwutz/movieinfo`
 * `go build`
 * `cp movieinfo` somewhere in your `$PATH` if you prefer
-* `GOOS=wiondows GOARCH=amd64 go build` to create a windows `.exe`
+* `GOOS=windows GOARCH=amd64 go build` to create a windows `.exe`
 
 # usage
 Set up you API key. Either save it as environment variable `TMDB_API` or supply it on the commandline.

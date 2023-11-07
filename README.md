@@ -67,7 +67,7 @@ You have been warned.
 * `cd $GOPATH/src/github.com/wwwutz/movieinfo`
 * `go build`
 * `cp movieinfo` somewhere in your `$PATH` if you prefer
-* `GOOS=wiondows GOARCH=amd64 go build` to create a windows `.exe`
+* `GOOS=windows GOARCH=amd64 go build` to create a windows `.exe`
 
 # usage
 Set up you API key. Either save it as environment variable `TMDB_API` or supply it on the commandline.
@@ -80,10 +80,10 @@ USAGE:
    movieinfo [movie]
 
 VERSION:
-   0.3
+   0.4
 
 COMMANDS:
-     help, h  Shows a list of commands or help for one command
+   help, h  Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
    --download, -d               download images and metadata
@@ -577,15 +577,15 @@ Given the following files:
 
 3v3n_uglier.meta
 Nice-Name.txt
+ugly_m0VieNam3.URL
 ugly_m0VieNam3.avi
 ugly_m0VieNam3.iso
-ugly_m0VieNam3.URL
 
 ```
 Now let them all be called `Nice-Name.*`
 
 ```
-$ movieinfo --mvtoext .txt 3v3n_uglier.meta Nice-Name.txt ugly_m0VieNam3.avi ugly_m0VieNam3.iso ugly_m0VieNam3.URL
+$ movieinfo --mvtoext .txt 3v3n_uglier.meta Nice-Name.txt ugly_m0VieNam3.URL ugly_m0VieNam3.avi ugly_m0VieNam3.iso
 
  filenames[0]: 3v3n_uglier.meta
  filenames[1]: Nice-Name.txt
@@ -594,15 +594,16 @@ $ movieinfo --mvtoext .txt 3v3n_uglier.meta Nice-Name.txt ugly_m0VieNam3.avi ugl
  filenames[4]: ugly_m0VieNam3.URL
  mv ugly_m0VieNam3.avi Nice-Name.avi
  mv ugly_m0VieNam3.iso Nice-Name.iso
+ mv 3v3n_uglier.meta Nice-Name.meta
  mv ugly_m0VieNam3.URL Nice-Name.URL
  mv 3v3n_uglier.meta Nice-Name.meta
 
 $ ls -1
+Nice-Name.URL
 Nice-Name.avi
 Nice-Name.iso
 Nice-Name.meta
 Nice-Name.txt
-Nice-Name.URL
 
 ```
 Don't fall for it: It only uses the filenames you supply in the commandline:
@@ -626,8 +627,8 @@ $ ls -1
 3v3n_uglier.meta
 Nice-Name.avi
 Nice-Name.txt
-ugly_m0VieNam3.iso
 ugly_m0VieNam3.URL
+ugly_m0VieNam3.iso
 
 ```
 Remember: It does *not* search in your folder. You must not supply more or less than one filename with the supplied extension. Captain Obvious.
