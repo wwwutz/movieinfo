@@ -15,16 +15,16 @@ Minority Report-180-backdrop.jpg
 Minority Report-180.jpg
 Total Recall 2070 Machine Dreams-933701-1999.URL
 Total Recall 2070 Machine Dreams-933701.jpg
-Total Recall Die totale Erinnerung-861-1990.URL
-Total Recall Die totale Erinnerung-861-backdrop.jpg
-Total Recall Die totale Erinnerung-861.jpg
-Total Recall(ed)-835797-2021.URL
-Total Recall(ed)-835797.jpg
 Total Recall-597892-1987.URL
 Total Recall-597892.jpg
 Total Recall-64635-2012.URL
 Total Recall-64635-backdrop.jpg
 Total Recall-64635.jpg
+Total Recall Die totale Erinnerung-861-1990.URL
+Total Recall Die totale Erinnerung-861-backdrop.jpg
+Total Recall Die totale Erinnerung-861.jpg
+Total Recall(ed)-835797-2021.URL
+Total Recall(ed)-835797.jpg
 
 ```
 # warning
@@ -214,16 +214,16 @@ Minority Report-180-backdrop.jpg
 Minority Report-180.jpg
 Total Recall 2070 Machine Dreams-933701-1999.URL
 Total Recall 2070 Machine Dreams-933701.jpg
-Total Recall Die totale Erinnerung-861-1990.URL
-Total Recall Die totale Erinnerung-861-backdrop.jpg
-Total Recall Die totale Erinnerung-861.jpg
-Total Recall(ed)-835797-2021.URL
-Total Recall(ed)-835797.jpg
 Total Recall-597892-1987.URL
 Total Recall-597892.jpg
 Total Recall-64635-2012.URL
 Total Recall-64635-backdrop.jpg
 Total Recall-64635.jpg
+Total Recall Die totale Erinnerung-861-1990.URL
+Total Recall Die totale Erinnerung-861-backdrop.jpg
+Total Recall Die totale Erinnerung-861.jpg
+Total Recall(ed)-835797-2021.URL
+Total Recall(ed)-835797.jpg
 
 ```
 
@@ -589,13 +589,14 @@ $ movieinfo --mvtoext .txt 3v3n_uglier.meta Nice-Name.txt ugly_m0VieNam3.URL ugl
 
  filenames[0]: 3v3n_uglier.meta
  filenames[1]: Nice-Name.txt
- filenames[2]: ugly_m0VieNam3.URL
- filenames[3]: ugly_m0VieNam3.avi
- filenames[4]: ugly_m0VieNam3.iso
+ filenames[2]: ugly_m0VieNam3.avi
+ filenames[3]: ugly_m0VieNam3.iso
+ filenames[4]: ugly_m0VieNam3.URL
  mv ugly_m0VieNam3.avi Nice-Name.avi
  mv ugly_m0VieNam3.iso Nice-Name.iso
  mv 3v3n_uglier.meta Nice-Name.meta
  mv ugly_m0VieNam3.URL Nice-Name.URL
+ mv 3v3n_uglier.meta Nice-Name.meta
 
 $ ls -1
 Nice-Name.URL
